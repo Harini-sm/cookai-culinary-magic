@@ -3,16 +3,17 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Mail, Lock, User, AlertCircle } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Signup = () => {
+  const { signup, isLoading } = useAuth();
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
   
-  const handleSignup = (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!username.trim() || !email.trim() || !password.trim() || !confirmPassword.trim()) {
@@ -26,14 +27,12 @@ const Signup = () => {
     }
     
     setError('');
-    setLoading(true);
     
-    // Simulate API call with timeout
-    setTimeout(() => {
-      console.log('Signup attempt with:', { username, email, password });
-      setLoading(false);
-      // In a real app, you would redirect upon successful signup
-    }, 1500);
+    try {
+      await signup(username, email, password);
+    } catch (err) {
+      setError('Signup failed. Please try again later.');
+    }
   };
 
   return (
@@ -48,7 +47,7 @@ const Signup = () => {
         >
           <div className="relative rounded-2xl overflow-hidden shadow-2xl">
             <img 
-              src="https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&q=80" 
+              src="https://images.unsplash.com/photo-1498837167922-ddd27525d352?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80" 
               alt="Cooking" 
               className="w-full h-auto"
             />
@@ -165,12 +164,12 @@ const Signup = () => {
             {/* Sign Up Button */}
             <button
               type="submit"
-              disabled={loading}
+              disabled={isLoading}
               className={`w-full py-3 rounded-lg font-medium text-white flex items-center justify-center transition-all ${
-                loading ? 'bg-primary/70 cursor-not-allowed' : 'bg-primary hover:bg-primary/90'
+                isLoading ? 'bg-primary/70 cursor-not-allowed' : 'bg-primary hover:bg-primary/90'
               }`}
             >
-              {loading ? (
+              {isLoading ? (
                 <>
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
                   Creating Account...

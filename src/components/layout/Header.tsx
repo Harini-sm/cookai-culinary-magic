@@ -1,8 +1,8 @@
-
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ChevronDown, Menu, X } from 'lucide-react';
 import ThemeToggle from '../ui/ThemeToggle';
+import Logo from '../ui/Logo';
 import { cn } from '@/lib/utils';
 
 const Header = () => {
@@ -36,14 +36,8 @@ const Header = () => {
       )}
     >
       <div className="container mx-auto px-4 flex items-center justify-between">
-        {/* Logo */}
-        <Link 
-          to="/" 
-          className="flex items-center gap-2 text-2xl font-display font-bold"
-        >
-          <span className="text-primary text-3xl">Cook</span>
-          <span className="text-cook-accent">AI</span>
-        </Link>
+        {/* Logo - Using the new Logo component */}
+        <Logo />
 
         {/* Desktop Navigation */}
         <nav className="hidden lg:flex items-center gap-6">

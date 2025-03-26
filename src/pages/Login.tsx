@@ -3,14 +3,15 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Mail, Lock, AlertCircle, Github } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Login = () => {
+  const { login, isLoading } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
   
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!email.trim() || !password.trim()) {
@@ -19,14 +20,12 @@ const Login = () => {
     }
     
     setError('');
-    setLoading(true);
     
-    // Simulate API call with timeout
-    setTimeout(() => {
-      console.log('Login attempt with:', { email, password });
-      setLoading(false);
-      // In a real app, you would redirect upon successful login
-    }, 1500);
+    try {
+      await login(email, password);
+    } catch (err) {
+      setError('Invalid email or password');
+    }
   };
 
   return (
@@ -101,12 +100,12 @@ const Login = () => {
             {/* Login Button */}
             <button
               type="submit"
-              disabled={loading}
+              disabled={isLoading}
               className={`w-full py-3 rounded-lg font-medium text-white flex items-center justify-center transition-all ${
-                loading ? 'bg-primary/70 cursor-not-allowed' : 'bg-primary hover:bg-primary/90'
+                isLoading ? 'bg-primary/70 cursor-not-allowed' : 'bg-primary hover:bg-primary/90'
               }`}
             >
-              {loading ? (
+              {isLoading ? (
                 <>
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
                   Logging In...
@@ -172,9 +171,9 @@ const Login = () => {
         >
           <div className="relative rounded-2xl overflow-hidden shadow-2xl">
             <img 
-              src="https://images.unsplash.com/photo-1556910103-dcae3fbae9a2?auto=format&q=80" 
+              src="https://images.unsplash.com/photo-1556910103-dcae3fbae9a2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80" 
               alt="Cooking" 
-              className="w-full h-auto"
+              className="w-full h-auto object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent flex items-end">
               <div className="p-6">
