@@ -54,21 +54,12 @@ const Profile = () => {
           className="mb-12"
         >
           <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
-            {/* Avatar */}
-            <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-lg">
-              <img 
-                src={user?.avatar || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=facearea&facepad=2&q=60&w=300&h=300"} 
-                alt={user?.name || "User"} 
-                className="w-full h-full object-cover"
-              />
-            </div>
-            
-            {/* User Info */}
+            {/* User Info - Profile picture removed */}
             <div className="flex-grow">
               <div className="flex flex-col md:flex-row md:items-center justify-between mb-4">
                 <div className="text-center md:text-left mb-4 md:mb-0">
-                  <h1 className="text-3xl font-display font-bold mb-1">{user?.name}</h1>
-                  <p className="text-gray-600 dark:text-gray-400">@{user?.username} • Joined {user?.joinedDate}</p>
+                  <h1 className="text-3xl font-display font-bold mb-1">@{user?.username}</h1>
+                  <p className="text-gray-600 dark:text-gray-400">Joined {user?.joinedDate}</p>
                 </div>
                 
                 <div className="flex items-center gap-3">
