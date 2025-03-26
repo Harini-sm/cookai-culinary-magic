@@ -1,50 +1,10 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Settings, LogOut, Heart, Share2, Star, Clock, Search, Filter, Trash2 } from 'lucide-react';
+import { Settings, LogOut, Heart, Share2, Star, Clock, Search, Filter } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import PreferencesForm from '@/components/profile/PreferencesForm';
 import { useNavigate } from 'react-router-dom';
-
-// Mock data for saved recipes
-const savedRecipes = [
-  {
-    id: 1,
-    title: "Garlic Butter Shrimp Pasta",
-    image: "https://images.unsplash.com/photo-1563379926898-05f4575a45d8?auto=format&q=80",
-    cookingTime: "20 min",
-    difficulty: "Easy",
-    rating: 4.5,
-    category: "Dinner"
-  },
-  {
-    id: 2,
-    title: "Mediterranean Chickpea Bowl",
-    image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&q=80",
-    cookingTime: "25 min",
-    difficulty: "Easy",
-    rating: 4.8,
-    category: "Lunch"
-  },
-  {
-    id: 3,
-    title: "Classic French Toast",
-    image: "https://images.unsplash.com/photo-1484723091739-30a097e8f929?auto=format&q=80",
-    cookingTime: "15 min",
-    difficulty: "Easy",
-    rating: 4.3,
-    category: "Breakfast"
-  },
-  {
-    id: 4,
-    title: "Spicy Thai Basil Chicken",
-    image: "https://images.unsplash.com/photo-1455619452474-d2be8b1e70cd?auto=format&q=80",
-    cookingTime: "30 min",
-    difficulty: "Medium",
-    rating: 4.7,
-    category: "Dinner"
-  }
-];
 
 const Profile = () => {
   const { user, isAuthenticated, hasCompletedPreferences, logout } = useAuth();
@@ -82,13 +42,6 @@ const Profile = () => {
       </div>
     );
   }
-  
-  // Filter recipes based on search query and category
-  const filteredRecipes = savedRecipes.filter(recipe => {
-    const matchesSearch = recipe.title.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = categoryFilter === 'All' || recipe.category === categoryFilter;
-    return matchesSearch && matchesCategory;
-  });
 
   return (
     <div className="min-h-screen pt-24 pb-20">
@@ -277,93 +230,29 @@ const Profile = () => {
           </div>
         </div>
         
-        {/* Recipes Grid */}
+        {/* Empty State - No Saved Recipes Yet */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
+          className="text-center py-16"
         >
-          {filteredRecipes.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {filteredRecipes.map((recipe) => (
-                <RecipeCard key={recipe.id} recipe={recipe} />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Search className="w-8 h-8 text-gray-400" />
-              </div>
-              <h3 className="text-lg font-bold mb-2">No recipes found</h3>
-              <p className="text-gray-600 dark:text-gray-400 max-w-md mx-auto">
-                We couldn't find any recipes matching your search criteria. Try adjusting your filters or search query.
-              </p>
-            </div>
-          )}
+          <div className="w-20 h-20 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6">
+            <Heart className="w-10 h-10 text-gray-400" />
+          </div>
+          <h3 className="text-xl font-bold mb-3">No recipes yet</h3>
+          <p className="text-gray-600 dark:text-gray-400 max-w-md mx-auto mb-8">
+            You haven't saved any recipes yet. Explore our features to discover delicious recipes and save them to your profile.
+          </p>
+          <button 
+            onClick={() => navigate('/pantry-prodigy')}
+            className="button-primary"
+          >
+            Explore Recipes
+          </button>
         </motion.div>
       </div>
     </div>
-  );
-};
-
-type RecipeCardProps = {
-  recipe: typeof savedRecipes[0];
-};
-
-const RecipeCard = ({ recipe }: RecipeCardProps) => {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="glass-card rounded-xl overflow-hidden h-full flex flex-col"
-    >
-      <div className="relative">
-        <img 
-          src={recipe.image} 
-          alt={recipe.title} 
-          className="w-full h-48 object-cover"
-        />
-        <div className="absolute top-2 right-2 flex gap-2">
-          <button className="w-8 h-8 rounded-full bg-white/90 dark:bg-black/50 flex items-center justify-center text-red-500 hover:bg-white hover:text-red-600 transition-colors">
-            <Heart className="w-4 h-4" />
-          </button>
-          <button className="w-8 h-8 rounded-full bg-white/90 dark:bg-black/50 flex items-center justify-center text-blue-500 hover:bg-white hover:text-blue-600 transition-colors">
-            <Share2 className="w-4 h-4" />
-          </button>
-        </div>
-        
-        {/* Category Label */}
-        <div className="absolute bottom-2 left-2 px-2 py-1 rounded-full bg-black/50 text-white text-xs">
-          {recipe.category}
-        </div>
-      </div>
-      
-      <div className="p-4 flex-grow flex flex-col">
-        <h3 className="font-bold text-lg mb-2">{recipe.title}</h3>
-        
-        <div className="grid grid-cols-2 gap-2 mb-4">
-          <div className="flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-400">
-            <Clock className="w-4 h-4" />
-            <span>{recipe.cookingTime}</span>
-          </div>
-          <div className="flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-400">
-            <Star className="w-4 h-4 text-yellow-500" />
-            <span>{recipe.rating}</span>
-          </div>
-        </div>
-        
-        <div className="mt-auto flex justify-between">
-          <button className="text-sm text-red-500 flex items-center gap-1.5 hover:text-red-600">
-            <Trash2 className="w-4 h-4" />
-            Remove
-          </button>
-          <button className="text-sm text-primary flex items-center gap-1.5 hover:underline">
-            View Recipe
-          </button>
-        </div>
-      </div>
-    </motion.div>
   );
 };
 
