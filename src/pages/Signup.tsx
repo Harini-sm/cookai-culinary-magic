@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -47,7 +46,6 @@ const Signup = () => {
   return (
     <div className="min-h-screen pt-24 pb-20 flex items-center justify-center">
       <div className="container mx-auto px-4 flex flex-col-reverse lg:flex-row items-center gap-12">
-        {/* Left Column - Image */}
         <motion.div
           initial={{ opacity: 0, x: -30 }}
           animate={{ opacity: 1, x: 0 }}
@@ -71,7 +69,6 @@ const Signup = () => {
           </div>
         </motion.div>
         
-        {/* Right Column - Form */}
         <motion.div
           initial={{ opacity: 0, x: 30 }}
           animate={{ opacity: 1, x: 0 }}
@@ -85,7 +82,6 @@ const Signup = () => {
             </p>
           </div>
           
-          {/* Error Message */}
           {error && (
             <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-center gap-3 text-red-600 dark:text-red-400">
               <AlertCircle className="w-5 h-5 flex-shrink-0" />
@@ -94,7 +90,6 @@ const Signup = () => {
           )}
           
           <form onSubmit={handleSignup}>
-            {/* Username Field */}
             <div className="mb-4">
               <label htmlFor="username" className="block text-sm font-medium mb-2">
                 Username
@@ -113,7 +108,6 @@ const Signup = () => {
               </div>
             </div>
             
-            {/* Email Field */}
             <div className="mb-4">
               <label htmlFor="email" className="block text-sm font-medium mb-2">
                 Email Address
@@ -132,7 +126,6 @@ const Signup = () => {
               </div>
             </div>
             
-            {/* Password Field */}
             <div className="mb-4">
               <label htmlFor="password" className="block text-sm font-medium mb-2">
                 Password
@@ -151,7 +144,6 @@ const Signup = () => {
               </div>
             </div>
             
-            {/* Confirm Password Field */}
             <div className="mb-6">
               <label htmlFor="confirm-password" className="block text-sm font-medium mb-2">
                 Confirm Password
@@ -170,7 +162,6 @@ const Signup = () => {
               </div>
             </div>
             
-            {/* Sign Up Button */}
             <button
               type="submit"
               disabled={isLoading}
@@ -188,14 +179,12 @@ const Signup = () => {
               )}
             </button>
             
-            {/* Divider */}
             <div className="my-6 flex items-center">
               <div className="flex-grow h-px bg-gray-200 dark:bg-gray-700"></div>
               <span className="px-4 text-sm text-gray-500 dark:text-gray-400">Or continue with</span>
               <div className="flex-grow h-px bg-gray-200 dark:bg-gray-700"></div>
             </div>
             
-            {/* Social Logins */}
             <div className="mb-6">
               <button
                 type="button"
@@ -224,7 +213,6 @@ const Signup = () => {
               </button>
             </div>
             
-            {/* Log In Link */}
             <div className="text-center">
               <p className="text-gray-600 dark:text-gray-400">
                 Already have an account?{' '}
