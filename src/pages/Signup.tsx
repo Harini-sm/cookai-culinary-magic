@@ -6,7 +6,7 @@ import { Mail, Lock, User, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
 const Signup = () => {
-  const { signup, isLoading } = useAuth();
+  const { signup, loginWithGoogle, isLoading } = useAuth();
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -35,6 +35,15 @@ const Signup = () => {
     }
   };
 
+  const handleGoogleLogin = async () => {
+    try {
+      await loginWithGoogle();
+    } catch (err) {
+      console.error("Google signup error:", err);
+      setError('Google signup failed. Please try again.');
+    }
+  };
+
   return (
     <div className="min-h-screen pt-24 pb-20 flex items-center justify-center">
       <div className="container mx-auto px-4 flex flex-col-reverse lg:flex-row items-center gap-12">
@@ -47,7 +56,7 @@ const Signup = () => {
         >
           <div className="relative rounded-2xl overflow-hidden shadow-2xl">
             <img 
-              src="https://images.unsplash.com/photo-1498837167922-ddd27525d352?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80" 
+              src="https://images.unsplash.com/photo-1498837167922-ddd27525d352?ixlib=rb-4.0.3&auto=format&fit=crop&w=2340&q=80" 
               alt="Cooking" 
               className="w-full h-auto"
             />
@@ -190,6 +199,7 @@ const Signup = () => {
             <div className="mb-6">
               <button
                 type="button"
+                onClick={handleGoogleLogin}
                 className="w-full py-3 px-4 border border-gray-300 dark:border-gray-700 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
               >
                 <svg width="20" height="20" viewBox="0 0 24 24">

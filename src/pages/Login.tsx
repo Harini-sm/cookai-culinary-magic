@@ -32,6 +32,7 @@ const Login = () => {
     try {
       await loginWithGoogle();
     } catch (err) {
+      console.error("Google login error:", err);
       setError('Google login failed. Please try again.');
     }
   };
@@ -180,7 +181,7 @@ const Login = () => {
         >
           <div className="relative rounded-2xl overflow-hidden shadow-2xl">
             <img 
-              src="/cooking-image.jpg" 
+              src="https://images.pexels.com/photos/1640774/pexels-photo-1640774.jpeg" 
               alt="Cooking" 
               className="w-full h-auto object-cover"
               onError={(e) => {

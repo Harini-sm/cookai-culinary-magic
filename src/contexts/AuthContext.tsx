@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from "sonner";
+import { auth, provider, signInWithPopup } from "@/firebase";
 
 // Define types
 type User = {
@@ -63,16 +64,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      // In a real app this would be an API call
       // Simulating API call with timeout
       await new Promise(resolve => setTimeout(resolve, 1500));
       
-      // Mock successful login - in a real app, this would be returned from the API
+      // Mock successful login
       const userData: User = {
         id: '1234',
-        name: '',
+        name: 'Alex Johnson',
         username: email.split('@')[0],
         email,
+        avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=facearea&facepad=2&q=60&w=300&h=300',
         joinedDate: new Date().toLocaleString('default', { month: 'long', year: 'numeric' }),
         preferences: undefined, // New users don't have preferences yet
       };
@@ -102,28 +103,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const loginWithGoogle = async () => {
     setIsLoading(true);
     try {
-      // Mock Google authentication with timeout
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Mock successful Google login
-      const email = 'user' + Math.floor(Math.random() * 1000) + '@gmail.com';
-      const username = email.split('@')[0];
-      
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
       const userData: User = {
-        id: 'google-' + Math.random().toString(36).substring(2, 9),
-        name: '',
-        username,
-        email,
-        joinedDate: new Date().toLocaleString('default', { month: 'long', year: 'numeric' }),
-        preferences: undefined,
+        id: user.uid,
+        name: user.displayName || "User",
+        username: user.email?.split("@")[0] || "user",
+        email: user.email || "",
+        avatar: user.photoURL || "https://via.placeholder.com/150",
+        joinedDate: new Date().toLocaleString("default", { month: "long", year: "numeric" }),
       };
-      
-      // Save user to state and localStorage
+
       setUser(userData);
-      localStorage.setItem('cookAI_user', JSON.stringify(userData));
-      
-      // Show success message
-      toast.success("Google login successful! Welcome to CookAI.");
+      localStorage.setItem("cookAI_user", JSON.stringify(userData));
+      toast.success(`Welcome ${user.displayName || "User"}!`);
       
       // Redirect to home page
       setTimeout(() => {
@@ -132,7 +126,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       return Promise.resolve();
     } catch (error) {
-      toast.error("Google login failed. Please try again.");
+      console.error("Google login error:", error);
+      toast.error("Google Sign-In failed. Try again.");
       return Promise.reject(error);
     } finally {
       setIsLoading(false);
@@ -143,7 +138,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signup = async (username: string, email: string, password: string) => {
     setIsLoading(true);
     try {
-      // In a real app this would be an API call
       // Simulating API call with timeout
       await new Promise(resolve => setTimeout(resolve, 1500));
       
