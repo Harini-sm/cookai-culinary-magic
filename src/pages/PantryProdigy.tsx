@@ -39,7 +39,7 @@ const PantryProdigy = () => {
   const [ingredients, setIngredients] = useState<string[]>([]);
   const [newIngredient, setNewIngredient] = useState("");
   const [mealType, setMealType] = useState("");
-  const [utensils, setUtensils] = useState<string[]>([]);
+  const [dietaryRequirements, setDietaryRequirements] = useState<string[]>([]);
   const [timeLimit, setTimeLimit] = useState("30");
   const [skillLevel, setSkillLevel] = useState("beginner");
   
@@ -60,12 +60,12 @@ const PantryProdigy = () => {
     setIngredients(ingredients.filter((_, i) => i !== index));
   };
   
-  // Toggle kitchen utensil selection
-  const toggleUtensil = (utensil: string) => {
-    if (utensils.includes(utensil)) {
-      setUtensils(utensils.filter(u => u !== utensil));
+  // Toggle dietary requirement selection
+  const toggleDietaryRequirement = (requirement: string) => {
+    if (dietaryRequirements.includes(requirement)) {
+      setDietaryRequirements(dietaryRequirements.filter(r => r !== requirement));
     } else {
-      setUtensils([...utensils, utensil]);
+      setDietaryRequirements([...dietaryRequirements, requirement]);
     }
   };
   
@@ -179,21 +179,21 @@ const PantryProdigy = () => {
               </select>
             </div>
             
-            {/* Kitchen Utensils */}
+            {/* Dietary Requirements */}
             <div className="mb-6">
-              <label className="block text-sm font-medium mb-2">Available Kitchen Utensils</label>
+              <label className="block text-sm font-medium mb-2">Dietary Requirements</label>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                {["Oven", "Stovetop", "Microwave", "Blender", "Slow Cooker", "Air Fryer"].map(utensil => (
+                {["Vegetarian", "Vegan", "Gluten-Free", "Dairy-Free", "Keto", "Low-Carb"].map(requirement => (
                   <button
-                    key={utensil}
-                    onClick={() => toggleUtensil(utensil)}
+                    key={requirement}
+                    onClick={() => toggleDietaryRequirement(requirement)}
                     className={`px-4 py-2 rounded border text-sm transition-colors ${
-                      utensils.includes(utensil)
+                      dietaryRequirements.includes(requirement)
                         ? 'bg-primary text-white border-primary'
                         : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
                     }`}
                   >
-                    {utensil}
+                    {requirement}
                   </button>
                 ))}
               </div>
