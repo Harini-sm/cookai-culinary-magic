@@ -2,11 +2,11 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Mail, Lock, AlertCircle, Github } from 'lucide-react';
+import { Mail, Lock, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
 const Login = () => {
-  const { login, isLoading } = useAuth();
+  const { login, loginWithGoogle, isLoading } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -25,6 +25,14 @@ const Login = () => {
       await login(email, password);
     } catch (err) {
       setError('Invalid email or password');
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      await loginWithGoogle();
+    } catch (err) {
+      setError('Google login failed. Please try again.');
     }
   };
 
@@ -126,6 +134,7 @@ const Login = () => {
             <div className="mb-6">
               <button
                 type="button"
+                onClick={handleGoogleLogin}
                 className="w-full py-3 px-4 border border-gray-300 dark:border-gray-700 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
               >
                 <svg width="20" height="20" viewBox="0 0 24 24">

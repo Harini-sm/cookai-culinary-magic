@@ -25,6 +25,7 @@ type AuthContextType = {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
+  loginWithGoogle: () => Promise<void>;
   signup: (username: string, email: string, password: string) => Promise<void>;
   logout: () => void;
   updateUser: (userData: Partial<User>) => void;
@@ -69,10 +70,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Mock successful login - in a real app, this would be returned from the API
       const userData: User = {
         id: '1234',
-        name: 'Alex Johnson',
+        name: '',
         username: email.split('@')[0],
         email,
-        avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=facearea&facepad=2&q=60&w=300&h=300',
         joinedDate: new Date().toLocaleString('default', { month: 'long', year: 'numeric' }),
         preferences: undefined, // New users don't have preferences yet
       };
@@ -92,6 +92,47 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return Promise.resolve();
     } catch (error) {
       toast.error("Login failed. Please check your credentials and try again.");
+      return Promise.reject(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Google Login function
+  const loginWithGoogle = async () => {
+    setIsLoading(true);
+    try {
+      // Mock Google authentication with timeout
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Mock successful Google login
+      const email = 'user' + Math.floor(Math.random() * 1000) + '@gmail.com';
+      const username = email.split('@')[0];
+      
+      const userData: User = {
+        id: 'google-' + Math.random().toString(36).substring(2, 9),
+        name: '',
+        username,
+        email,
+        joinedDate: new Date().toLocaleString('default', { month: 'long', year: 'numeric' }),
+        preferences: undefined,
+      };
+      
+      // Save user to state and localStorage
+      setUser(userData);
+      localStorage.setItem('cookAI_user', JSON.stringify(userData));
+      
+      // Show success message
+      toast.success("Google login successful! Welcome to CookAI.");
+      
+      // Redirect to home page
+      setTimeout(() => {
+        navigate('/');
+      }, 1000);
+      
+      return Promise.resolve();
+    } catch (error) {
+      toast.error("Google login failed. Please try again.");
       return Promise.reject(error);
     } finally {
       setIsLoading(false);
@@ -162,6 +203,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     isAuthenticated: !!user,
     isLoading,
     login,
+    loginWithGoogle,
     signup,
     logout,
     updateUser,
