@@ -1,10 +1,10 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Settings, LogOut, Heart, Share2, Star, Clock, Search, Filter } from 'lucide-react';
+import { Settings, LogOut, Heart, Share2, Star, Clock, Search, Filter, Bookmark, Trash2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import PreferencesForm from '@/components/profile/PreferencesForm';
 import { useNavigate } from 'react-router-dom';
+import { useRecipes } from '@/hooks/useRecipes';
 
 const Profile = () => {
   const { user, isAuthenticated, hasCompletedPreferences, logout } = useAuth();
@@ -13,7 +13,49 @@ const Profile = () => {
   const [categoryFilter, setCategoryFilter] = useState('All');
   const navigate = useNavigate();
   
-  // Redirect to login if not authenticated
+  const { 
+    savedRecipes, 
+    fetchSavedRecipes, 
+    removeSavedRecipe,
+    isFetchingRecipes 
+  } = useRecipes();
+  
+  const [filteredRecipes, setFilteredRecipes] = useState<any[]>([]);
+  
+  useEffect(() => {
+    if (isAuthenticated && activeTab === 'saved') {
+      fetchSavedRecipes();
+    }
+  }, [isAuthenticated, activeTab]);
+  
+  useEffect(() => {
+    if (savedRecipes.length === 0) {
+      setFilteredRecipes([]);
+      return;
+    }
+    
+    let filtered = [...savedRecipes];
+    
+    if (searchQuery.trim() !== '') {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(recipe => 
+        recipe.title.toLowerCase().includes(query)
+      );
+    }
+    
+    if (categoryFilter !== 'All') {
+      filtered = filtered.filter(recipe => {
+        const recipeData = recipe.recipeData;
+        if (recipeData && recipeData.category) {
+          return recipeData.category === categoryFilter;
+        }
+        return false;
+      });
+    }
+    
+    setFilteredRecipes(filtered);
+  }, [savedRecipes, searchQuery, categoryFilter]);
+  
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen pt-24 pb-20 flex flex-col items-center justify-center text-center px-4">
@@ -32,7 +74,6 @@ const Profile = () => {
     );
   }
   
-  // Show preferences form if user hasn't completed it yet
   if (!hasCompletedPreferences) {
     return (
       <div className="min-h-screen pt-24 pb-20">
@@ -43,10 +84,13 @@ const Profile = () => {
     );
   }
 
+  const handleRemoveRecipe = async (recipeId: string) => {
+    await removeSavedRecipe(recipeId);
+  };
+
   return (
     <div className="min-h-screen pt-24 pb-20">
       <div className="container mx-auto px-4">
-        {/* Profile Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -54,7 +98,6 @@ const Profile = () => {
           className="mb-12"
         >
           <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
-            {/* User Info - Profile picture removed */}
             <div className="flex-grow">
               <div className="flex flex-col md:flex-row md:items-center justify-between mb-4">
                 <div className="text-center md:text-left mb-4 md:mb-0">
@@ -80,7 +123,6 @@ const Profile = () => {
                 </div>
               </div>
               
-              {/* User Preferences */}
               {user?.preferences && (
                 <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4">
                   <h3 className="font-bold mb-3">Your Preferences</h3>
@@ -142,7 +184,6 @@ const Profile = () => {
           </div>
         </motion.div>
         
-        {/* Tabs */}
         <div className="mb-8 border-b border-gray-200 dark:border-gray-800">
           <div className="flex overflow-x-auto hide-scrollbar">
             <button
@@ -191,7 +232,6 @@ const Profile = () => {
           </div>
         </div>
         
-        {/* Search and Filter Bar */}
         <div className="mb-8 flex flex-col sm:flex-row gap-4">
           <div className="flex-grow relative">
             <input
@@ -221,26 +261,83 @@ const Profile = () => {
           </div>
         </div>
         
-        {/* Empty State - No Saved Recipes Yet */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
-          className="text-center py-16"
         >
-          <div className="w-20 h-20 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6">
-            <Heart className="w-10 h-10 text-gray-400" />
-          </div>
-          <h3 className="text-xl font-bold mb-3">No recipes yet</h3>
-          <p className="text-gray-600 dark:text-gray-400 max-w-md mx-auto mb-8">
-            You haven't saved any recipes yet. Explore our features to discover delicious recipes and save them to your profile.
-          </p>
-          <button 
-            onClick={() => navigate('/pantry-prodigy')}
-            className="button-primary"
-          >
-            Explore Recipes
-          </button>
+          {isFetchingRecipes ? (
+            <div className="text-center py-10">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-gray-600 dark:text-gray-400">Loading your recipes...</p>
+            </div>
+          ) : filteredRecipes.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredRecipes.map((savedRecipe) => (
+                <div 
+                  key={savedRecipe.id} 
+                  className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow"
+                >
+                  <div className="relative">
+                    <img 
+                      src={savedRecipe.recipeData.image || 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&q=75'} 
+                      alt={savedRecipe.title} 
+                      className="w-full h-48 object-cover"
+                    />
+                    <div className="absolute top-3 right-3 flex gap-2">
+                      <button 
+                        onClick={() => handleRemoveRecipe(savedRecipe.recipeId)}
+                        className="p-1.5 bg-white/90 dark:bg-gray-800/90 rounded-full shadow hover:bg-white dark:hover:bg-gray-700 transition-colors"
+                        title="Remove from saved"
+                      >
+                        <Trash2 className="w-4 h-4 text-red-500" />
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div className="p-4">
+                    <h3 className="font-bold text-lg mb-2 line-clamp-2">{savedRecipe.title}</h3>
+                    
+                    <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400 mb-3">
+                      <div className="flex items-center">
+                        <Clock className="w-4 h-4 mr-1" />
+                        <span>{savedRecipe.recipeData.time || 'Unknown'}</span>
+                      </div>
+                      <div className="flex items-center">
+                        <Bookmark className="w-4 h-4 mr-1" />
+                        <span>Saved {new Date(savedRecipe.savedAt).toLocaleDateString()}</span>
+                      </div>
+                    </div>
+                    
+                    <button 
+                      onClick={() => {
+                        alert(`Viewing recipe: ${savedRecipe.title}`);
+                      }}
+                      className="w-full mt-2 py-2 text-center rounded bg-primary/10 text-primary hover:bg-primary/20 transition-colors text-sm font-medium"
+                    >
+                      View Recipe
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-16">
+              <div className="w-20 h-20 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Heart className="w-10 h-10 text-gray-400" />
+              </div>
+              <h3 className="text-xl font-bold mb-3">No recipes yet</h3>
+              <p className="text-gray-600 dark:text-gray-400 max-w-md mx-auto mb-8">
+                You haven't saved any recipes yet. Explore our features to discover delicious recipes and save them to your profile.
+              </p>
+              <button 
+                onClick={() => navigate('/pantry-prodigy')}
+                className="button-primary"
+              >
+                Explore Recipes
+              </button>
+            </div>
+          )}
         </motion.div>
       </div>
     </div>

@@ -1,9 +1,9 @@
-
-import { useState } from 'react';
-import { ChefHat, Clock, PieChart, Utensils, Volume2, VolumeX, Trash2, Heart } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { ChefHat, Clock, PieChart, Utensils, Volume2, VolumeX, Trash2, Heart, Share2, Bookmark, BookmarkCheck } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useRecipes } from '@/hooks/useRecipes';
+import { useAuth } from '@/contexts/AuthContext';
 
-// Mock recipe data for demonstration
 const mockRecipe = {
   title: "High-Protein Chicken & Quinoa Power Bowl",
   image: "https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&q=80",
@@ -68,7 +68,31 @@ const NutrientProdigy = () => {
   const [loading, setLoading] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   
-  // Toggle dietary requirement selection
+  const { isAuthenticated } = useAuth();
+  const { 
+    saveRecipe, 
+    shareRecipe, 
+    isRecipeSaved, 
+    removeSavedRecipe,
+    fetchSavedRecipes,
+    isLoading: isRecipeActionLoading 
+  } = useRecipes();
+  
+  const [isSaved, setIsSaved] = useState(false);
+  
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchSavedRecipes();
+    }
+  }, [isAuthenticated]);
+  
+  useEffect(() => {
+    if (recipe) {
+      const recipeId = `${recipe.title}-${Date.now()}`;
+      setIsSaved(isRecipeSaved(recipeId));
+    }
+  }, [recipe]);
+  
   const toggleDietaryRequirement = (value: string) => {
     if (dietaryRequirements.includes(value)) {
       setDietaryRequirements(dietaryRequirements.filter(r => r !== value));
@@ -77,13 +101,11 @@ const NutrientProdigy = () => {
     }
   };
   
-  // Handle macro nutrient slider changes
   const handleMacroChange = (
     value: number, 
     setter: React.Dispatch<React.SetStateAction<number>>,
     otherSetters: Array<React.Dispatch<React.SetStateAction<number>>>
   ) => {
-    // Calculate the remaining percentage to distribute
     const remaining = 100 - value;
     const currentOtherValues = otherSetters.map(s => {
       const stateValue = s === setProtein ? protein : s === setCarbs ? carbs : fats;
@@ -91,10 +113,8 @@ const NutrientProdigy = () => {
     });
     const currentOtherTotal = currentOtherValues.reduce((a, b) => a + b, 0);
     
-    // Set the new value
     setter(value);
     
-    // Adjust other values proportionally
     if (currentOtherTotal > 0) {
       const factor = remaining / currentOtherTotal;
       otherSetters.forEach((s, i) => {
@@ -103,10 +123,8 @@ const NutrientProdigy = () => {
     }
   };
   
-  // Total of all macros should equal 100%
   const totalMacros = protein + carbs + fats;
   
-  // Generate recipe based on inputs
   const generateRecipe = () => {
     if (totalMacros !== 100) {
       alert("Macronutrient percentages must add up to 100%");
@@ -115,17 +133,40 @@ const NutrientProdigy = () => {
     
     setLoading(true);
     
-    // Simulate API call with timeout
     setTimeout(() => {
-      setRecipe(mockRecipe);
+      const recipeWithId = {
+        ...mockRecipe,
+        id: `${mockRecipe.title}-${Date.now()}`
+      };
+      setRecipe(recipeWithId);
       setLoading(false);
     }, 2000);
+  };
+
+  const handleSaveRecipe = async () => {
+    if (!recipe) return;
+    
+    if (isSaved) {
+      const result = await removeSavedRecipe(recipe.id);
+      if (result.success) {
+        setIsSaved(false);
+      }
+    } else {
+      const result = await saveRecipe(recipe);
+      if (result.success) {
+        setIsSaved(true);
+      }
+    }
+  };
+
+  const handleShareRecipe = async () => {
+    if (!recipe) return;
+    await shareRecipe(recipe);
   };
 
   return (
     <div className="min-h-screen pt-24 pb-20">
       <div className="container mx-auto px-4">
-        {/* Header */}
         <div className="text-center mb-12">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -145,7 +186,6 @@ const NutrientProdigy = () => {
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-          {/* Input Form */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -154,7 +194,6 @@ const NutrientProdigy = () => {
           >
             <h2 className="text-2xl font-bold mb-6">Set Your Nutritional Goals</h2>
             
-            {/* Macronutrient Sliders */}
             <div className="mb-8">
               <div className="flex justify-between items-center mb-2">
                 <label className="text-sm font-medium">Macronutrient Distribution (%)</label>
@@ -163,7 +202,6 @@ const NutrientProdigy = () => {
                 </span>
               </div>
               
-              {/* Protein Slider */}
               <div className="mb-4">
                 <div className="flex justify-between mb-1">
                   <span className="text-sm">Protein</span>
@@ -179,7 +217,6 @@ const NutrientProdigy = () => {
                 />
               </div>
               
-              {/* Carbs Slider */}
               <div className="mb-4">
                 <div className="flex justify-between mb-1">
                   <span className="text-sm">Carbohydrates</span>
@@ -195,7 +232,6 @@ const NutrientProdigy = () => {
                 />
               </div>
               
-              {/* Fats Slider */}
               <div>
                 <div className="flex justify-between mb-1">
                   <span className="text-sm">Fats</span>
@@ -212,7 +248,6 @@ const NutrientProdigy = () => {
               </div>
             </div>
             
-            {/* Meal Type */}
             <div className="mb-6">
               <label className="block text-sm font-medium mb-2">Meal Type</label>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -232,7 +267,6 @@ const NutrientProdigy = () => {
               </div>
             </div>
             
-            {/* Dietary Requirements */}
             <div className="mb-8">
               <label className="block text-sm font-medium mb-2">Dietary Requirements</label>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -252,7 +286,6 @@ const NutrientProdigy = () => {
               </div>
             </div>
             
-            {/* Generate Button */}
             <button
               onClick={generateRecipe}
               disabled={loading || totalMacros !== 100 || !mealType}
@@ -276,7 +309,6 @@ const NutrientProdigy = () => {
             </button>
           </motion.div>
           
-          {/* Recipe Display */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -284,7 +316,6 @@ const NutrientProdigy = () => {
           >
             {recipe ? (
               <div className="glass-card rounded-xl overflow-hidden">
-                {/* Recipe Header with Image */}
                 <div className="relative">
                   <img 
                     src={recipe.image} 
@@ -298,7 +329,6 @@ const NutrientProdigy = () => {
                   </div>
                 </div>
                 
-                {/* Macronutrient Info */}
                 <div className="grid grid-cols-4 divide-x divide-gray-200 dark:divide-gray-800 border-b border-gray-200 dark:border-gray-800">
                   <MacroNutrient label="Protein" value={recipe.macros.protein} color="bg-blue-500" />
                   <MacroNutrient label="Carbs" value={recipe.macros.carbs} color="bg-green-500" />
@@ -306,7 +336,6 @@ const NutrientProdigy = () => {
                   <MacroNutrient label="Fiber" value={recipe.macros.fiber} color="bg-purple-500" />
                 </div>
                 
-                {/* Recipe Info Badges */}
                 <div className="flex flex-wrap gap-3 p-6 border-b border-gray-200 dark:border-gray-800">
                   <div className="flex items-center gap-1.5 text-sm">
                     <Clock className="w-4 h-4 text-cook-secondary" />
@@ -327,10 +356,8 @@ const NutrientProdigy = () => {
                   </div>
                 </div>
                 
-                {/* Recipe Content */}
                 <div className="p-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Ingredients */}
                     <div>
                       <h3 className="text-lg font-bold mb-3 flex items-center">
                         <Utensils className="w-5 h-5 mr-2 text-cook-secondary" />
@@ -346,7 +373,6 @@ const NutrientProdigy = () => {
                       </ul>
                     </div>
                     
-                    {/* Instructions */}
                     <div>
                       <h3 className="text-lg font-bold mb-3 flex items-center">
                         <ChefHat className="w-5 h-5 mr-2 text-cook-secondary" />
@@ -365,7 +391,6 @@ const NutrientProdigy = () => {
                     </div>
                   </div>
                   
-                  {/* Actions */}
                   <div className="mt-6 flex justify-between">
                     <button 
                       onClick={() => setRecipe(null)}
@@ -376,10 +401,29 @@ const NutrientProdigy = () => {
                     </button>
                     
                     <div className="flex gap-3">
-                      <button className="button-secondary">
-                        Save Recipe
+                      <button 
+                        onClick={handleSaveRecipe}
+                        disabled={isRecipeActionLoading}
+                        className={`button-secondary flex items-center gap-1.5 ${isRecipeActionLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
+                      >
+                        {isSaved ? (
+                          <>
+                            <BookmarkCheck className="w-4 h-4" />
+                            Saved
+                          </>
+                        ) : (
+                          <>
+                            <Bookmark className="w-4 h-4" />
+                            Save Recipe
+                          </>
+                        )}
                       </button>
-                      <button className="button-primary">
+                      <button 
+                        onClick={handleShareRecipe}
+                        disabled={isRecipeActionLoading}
+                        className={`button-primary flex items-center gap-1.5 ${isRecipeActionLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
+                      >
+                        <Share2 className="w-4 h-4" />
                         Share Recipe
                       </button>
                     </div>
