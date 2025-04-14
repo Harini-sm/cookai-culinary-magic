@@ -1,7 +1,7 @@
-
 import { useState } from 'react';
 import { Minus, Plus, ChefHat, Clock, PieChart, Utensils, Volume2, VolumeX, Trash2 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Egg, Leaf, Drumstick } from 'lucide-react';
 
 // Mock recipe data for demonstration
 const mockRecipe = {
@@ -65,7 +65,7 @@ const PantryProdigy = () => {
     if (dietaryRequirements.includes(requirement)) {
       setDietaryRequirements(dietaryRequirements.filter(r => r !== requirement));
     } else {
-      setDietaryRequirements([...dietaryRequirements, requirement]);
+      setDietaryRequirements([requirement]);
     }
   };
   
@@ -181,19 +181,25 @@ const PantryProdigy = () => {
             
             {/* Dietary Requirements */}
             <div className="mb-6">
-              <label className="block text-sm font-medium mb-2">Dietary Requirements</label>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                {["Vegetarian", "Vegan", "Gluten-Free", "Dairy-Free", "Keto", "Low-Carb"].map(requirement => (
+              <label className="block text-sm font-medium mb-2">Dietary Preferences</label>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                {[
+                  { name: 'Vegetarian', icon: Leaf },
+                  { name: 'Vegan', icon: Leaf },
+                  { name: 'Non-Vegetarian', icon: Drumstick },
+                  { name: 'Eggitarian', icon: Egg }
+                ].map(({ name, icon: Icon }) => (
                   <button
-                    key={requirement}
-                    onClick={() => toggleDietaryRequirement(requirement)}
-                    className={`px-4 py-2 rounded border text-sm transition-colors ${
-                      dietaryRequirements.includes(requirement)
+                    key={name}
+                    onClick={() => toggleDietaryRequirement(name)}
+                    className={`px-4 py-2 rounded border text-sm transition-colors flex items-center justify-center gap-2 ${
+                      dietaryRequirements.includes(name)
                         ? 'bg-primary text-white border-primary'
                         : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
                     }`}
                   >
-                    {requirement}
+                    <Icon className="w-4 h-4" />
+                    {name}
                   </button>
                 ))}
               </div>
