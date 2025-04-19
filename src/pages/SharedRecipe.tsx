@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { ChefHat, Clock, PieChart, Utensils } from 'lucide-react';
@@ -141,9 +142,6 @@ const SharedRecipe = () => {
                     </ol>
                   </div>
                 </div>
-                
-                {/* Actions */}
-                
               </div>
             </div>
           </motion.div>

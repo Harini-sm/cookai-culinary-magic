@@ -1,6 +1,7 @@
+
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Settings, LogOut, Heart, Share2, Star, Clock, Search, Filter, Bookmark, Trash2 } from 'lucide-react';
+import { Settings, LogOut, Heart, Share2, Star, Clock, Search, Filter, Bookmark } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import PreferencesForm from '@/components/profile/PreferencesForm';
 import { useNavigate } from 'react-router-dom';
@@ -16,7 +17,6 @@ const Profile = () => {
   const { 
     savedRecipes, 
     fetchSavedRecipes, 
-    removeSavedRecipe,
     isFetchingRecipes 
   } = useRecipes();
   
@@ -83,10 +83,6 @@ const Profile = () => {
       </div>
     );
   }
-
-  const handleRemoveRecipe = async (recipeId: string) => {
-    await removeSavedRecipe(recipeId);
-  };
 
   return (
     <div className="min-h-screen pt-24 pb-20">
@@ -284,15 +280,6 @@ const Profile = () => {
                       alt={savedRecipe.title} 
                       className="w-full h-48 object-cover"
                     />
-                    <div className="absolute top-3 right-3 flex gap-2">
-                      <button 
-                        onClick={() => handleRemoveRecipe(savedRecipe.recipeId)}
-                        className="p-1.5 bg-white/90 dark:bg-gray-800/90 rounded-full shadow hover:bg-white dark:hover:bg-gray-700 transition-colors"
-                        title="Remove from saved"
-                      >
-                        <Trash2 className="w-4 h-4 text-red-500" />
-                      </button>
-                    </div>
                   </div>
                   
                   <div className="p-4">

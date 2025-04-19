@@ -1,3 +1,4 @@
+
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { FirebaseError } from "firebase/app";
@@ -43,8 +44,25 @@ const getSavedRecipes = async (userId: string) => {
   }
 };
 
+// Get a shared recipe by share ID
+const getSharedRecipe = async (shareId: string) => {
+  try {
+    const docRef = doc(db, "sharedRecipes", shareId);
+    const docSnap = await getDoc(docRef);
+    
+    if (docSnap.exists()) {
+      return { success: true, recipe: docSnap.data() };
+    } else {
+      return { success: false, message: "Shared recipe not found" };
+    }
+  } catch (error) {
+    console.error("Error getting shared recipe:", error);
+    return { success: false, message: "Failed to fetch shared recipe" };
+  }
+};
+
 export { 
   auth, provider, FirebaseError, db,
-  getSavedRecipes
+  getSavedRecipes, getSharedRecipe
 };
 export { signInWithPopup } from "firebase/auth";
