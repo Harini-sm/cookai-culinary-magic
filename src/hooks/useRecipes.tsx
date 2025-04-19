@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { 
@@ -15,6 +15,17 @@ export function useRecipes() {
   const [savedRecipes, setSavedRecipes] = useState<any[]>([]);
   const [isFetchingRecipes, setIsFetchingRecipes] = useState(false);
   const [socialShareLinks, setSocialShareLinks] = useState<any>(null);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [currentSharedRecipe, setCurrentSharedRecipe] = useState<any>(null);
+
+  // Load saved recipes on auth change
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      fetchSavedRecipes();
+    } else {
+      setSavedRecipes([]);
+    }
+  }, [isAuthenticated, user]);
 
   // Save recipe
   const saveRecipe = async (recipe: any) => {
@@ -114,33 +125,28 @@ export function useRecipes() {
       const result = await shareRecipeToFirebase(recipe);
       
       if (result.success) {
+        // Set current shared recipe
+        setCurrentSharedRecipe({
+          ...recipe,
+          shareId: result.shareId,
+          shareUrl: result.shareUrl
+        });
+        
         // Set social share links for the UI to use
         setSocialShareLinks(result.socialShareLinks);
         
-        // Create a modal or popup with sharing options
-        const shareData = {
-          title: `Check out this recipe: ${recipe.title}`,
-          text: `I found this amazing recipe using CookAI!`,
-          url: result.shareUrl
-        };
+        // Open share modal
+        setIsShareModalOpen(true);
         
-        // Try to use the Web Share API if available
-        if (navigator.share && navigator.canShare(shareData)) {
-          await navigator.share(shareData);
-          toast.success("Thanks for sharing!");
-        } else {
-          // Fallback to copying the URL
-          await navigator.clipboard.writeText(result.shareUrl);
-          toast.success("Recipe link copied to clipboard! Share it on your favorite platform.");
-          
-          // Open a new window with the share URL if in a supported browser
-          window.open(result.socialShareLinks.facebook, '_blank');
-        }
+        return { 
+          success: true, 
+          shareUrl: result.shareUrl, 
+          socialShareLinks: result.socialShareLinks 
+        };
       } else {
         toast.error(result.message || "Failed to share recipe");
+        return { success: false };
       }
-      
-      return result;
     } catch (error) {
       console.error("Error in shareRecipe:", error);
       toast.error("An error occurred while sharing the recipe");
@@ -148,6 +154,11 @@ export function useRecipes() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Close share modal
+  const closeShareModal = () => {
+    setIsShareModalOpen(false);
   };
 
   return {
@@ -159,6 +170,9 @@ export function useRecipes() {
     savedRecipes,
     socialShareLinks,
     isLoading,
-    isFetchingRecipes
+    isFetchingRecipes,
+    isShareModalOpen,
+    closeShareModal,
+    currentSharedRecipe
   };
 }

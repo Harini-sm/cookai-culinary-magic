@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { X, Link, MessageCircle, Share2 } from 'lucide-react';
+import { X, Link, Facebook, Twitter, Share2 } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -9,6 +9,7 @@ import {
   DialogDescription,
   DialogClose,
 } from "@/components/ui/dialog";
+import { toast } from "sonner";
 
 type SocialShareModalProps = {
   isOpen: boolean;
@@ -34,9 +35,10 @@ const SocialShareModal = ({
   const copyToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(shareUrl);
-      alert('Link copied to clipboard!');
+      toast.success('Link copied to clipboard!');
     } catch (err) {
       console.error('Failed to copy link: ', err);
+      toast.error('Failed to copy link');
     }
   };
 
@@ -44,37 +46,38 @@ const SocialShareModal = ({
     { 
       name: 'Facebook', 
       color: 'bg-blue-600 hover:bg-blue-700', 
-      icon: <MessageCircle className="w-5 h-5" />,
+      icon: <Facebook className="w-5 h-5" />,
       url: socialLinks.facebook 
     },
     { 
       name: 'Twitter', 
       color: 'bg-sky-500 hover:bg-sky-600', 
-      icon: <MessageCircle className="w-5 h-5" />,
+      icon: <Twitter className="w-5 h-5" />,
       url: socialLinks.twitter
     },
     { 
       name: 'WhatsApp', 
       color: 'bg-green-500 hover:bg-green-600', 
-      icon: <MessageCircle className="w-5 h-5" />,
+      icon: <Share2 className="w-5 h-5" />,
       url: socialLinks.whatsapp
     },
     { 
       name: 'LinkedIn', 
       color: 'bg-blue-700 hover:bg-blue-800', 
-      icon: <MessageCircle className="w-5 h-5" />,
+      icon: <Share2 className="w-5 h-5" />,
       url: socialLinks.linkedin 
     },
     { 
       name: 'Email', 
       color: 'bg-gray-600 hover:bg-gray-700', 
-      icon: <MessageCircle className="w-5 h-5" />,
+      icon: <Share2 className="w-5 h-5" />,
       url: socialLinks.email 
     }
   ];
 
   const handleSocialClick = (url: string) => {
     window.open(url, '_blank', 'noopener,noreferrer');
+    toast.success(`Sharing via ${url.split('.')[1]}`);
   };
 
   return (
