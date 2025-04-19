@@ -1,9 +1,7 @@
-
 import { useState } from 'react';
-import { ChefHat, Clock, PieChart, Utensils, Volume2, VolumeX, Trash2, Search } from 'lucide-react';
+import { ChefHat, Clock, PieChart, Utensils, Volume2, VolumeX, Trash2, Search, Egg, Leaf, Drumstick } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-// Mock recipe data for demonstration
 const mockRecipe = {
   title: "Mediterranean Chickpea Buddha Bowl",
   image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&q=80",
@@ -57,16 +55,14 @@ const PlateProdigy = () => {
   const [loading, setLoading] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   
-  // Toggle dietary requirement selection
   const toggleDietaryRequirement = (value: string) => {
     if (dietaryRequirements.includes(value)) {
       setDietaryRequirements(dietaryRequirements.filter(r => r !== value));
     } else {
-      setDietaryRequirements([...dietaryRequirements, value]);
+      setDietaryRequirements([value]);
     }
   };
   
-  // Generate recipe based on inputs
   const generateRecipe = () => {
     if (!recipeQuery.trim()) {
       alert("Please enter a recipe or dish type");
@@ -75,7 +71,6 @@ const PlateProdigy = () => {
     
     setLoading(true);
     
-    // Simulate API call with timeout
     setTimeout(() => {
       setRecipe(mockRecipe);
       setLoading(false);
@@ -85,7 +80,6 @@ const PlateProdigy = () => {
   return (
     <div className="min-h-screen pt-24 pb-20">
       <div className="container mx-auto px-4">
-        {/* Header */}
         <div className="text-center mb-12">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -105,7 +99,6 @@ const PlateProdigy = () => {
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-          {/* Input Form */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -114,7 +107,6 @@ const PlateProdigy = () => {
           >
             <h2 className="text-2xl font-bold mb-6">Customize Your Recipe</h2>
             
-            {/* Recipe Search */}
             <div className="mb-6">
               <label className="block text-sm font-medium mb-2">Enter Recipe or Dish Type</label>
               <div className="relative">
@@ -129,7 +121,6 @@ const PlateProdigy = () => {
               </div>
             </div>
             
-            {/* Servings & Cooking Time */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
               <div>
                 <label className="block text-sm font-medium mb-2">Number of Servings</label>
@@ -159,7 +150,6 @@ const PlateProdigy = () => {
               </div>
             </div>
             
-            {/* Skill Level */}
             <div className="mb-6">
               <label className="block text-sm font-medium mb-2">Cooking Skill Level</label>
               <div className="grid grid-cols-3 gap-3">
@@ -180,27 +170,31 @@ const PlateProdigy = () => {
               </div>
             </div>
             
-            {/* Dietary Requirements */}
-            <div className="mb-8">
-              <label className="block text-sm font-medium mb-2">Dietary Requirements</label>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                {dietaryOptions.map(option => (
+            <div className="mb-6">
+              <label className="block text-sm font-medium mb-2">Dietary Preference</label>
+              <div className="grid grid-cols-2 sm:grid-cols-2 gap-2">
+                {[
+                  { name: 'Vegetarian', icon: Leaf },
+                  { name: 'Vegan', icon: Leaf },
+                  { name: 'Non-Vegetarian', icon: Drumstick },
+                  { name: 'Eggitarian', icon: Egg }
+                ].map(({ name, icon: Icon }) => (
                   <button
-                    key={option.value}
-                    onClick={() => toggleDietaryRequirement(option.value)}
-                    className={`px-3 py-2 rounded border text-sm transition-colors ${
-                      dietaryRequirements.includes(option.value)
+                    key={name}
+                    onClick={() => toggleDietaryRequirement(name)}
+                    className={`px-4 py-2 rounded border text-sm transition-colors flex items-center justify-center gap-2 ${
+                      dietaryRequirements.includes(name)
                         ? 'bg-cook-accent text-white border-cook-accent'
                         : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
                     }`}
                   >
-                    {option.label}
+                    <Icon className="w-4 h-4" />
+                    {name}
                   </button>
                 ))}
               </div>
             </div>
             
-            {/* Generate Button */}
             <button
               onClick={generateRecipe}
               disabled={loading || !recipeQuery.trim()}
@@ -222,7 +216,6 @@ const PlateProdigy = () => {
             </button>
           </motion.div>
           
-          {/* Recipe Display */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -230,7 +223,6 @@ const PlateProdigy = () => {
           >
             {recipe ? (
               <div className="glass-card rounded-xl overflow-hidden">
-                {/* Recipe Header with Image */}
                 <div className="relative">
                   <img 
                     src={recipe.image} 
@@ -244,7 +236,6 @@ const PlateProdigy = () => {
                   </div>
                 </div>
                 
-                {/* Recipe Info Badges */}
                 <div className="flex flex-wrap gap-3 p-6 border-b border-gray-200 dark:border-gray-800">
                   <div className="flex items-center gap-1.5 text-sm">
                     <Clock className="w-4 h-4 text-cook-accent" />
@@ -269,10 +260,8 @@ const PlateProdigy = () => {
                   </div>
                 </div>
                 
-                {/* Recipe Content */}
                 <div className="p-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Ingredients */}
                     <div>
                       <h3 className="text-lg font-bold mb-3 flex items-center">
                         <Utensils className="w-5 h-5 mr-2 text-cook-accent" />
@@ -288,7 +277,6 @@ const PlateProdigy = () => {
                       </ul>
                     </div>
                     
-                    {/* Instructions */}
                     <div>
                       <h3 className="text-lg font-bold mb-3 flex items-center">
                         <ChefHat className="w-5 h-5 mr-2 text-cook-accent" />
@@ -307,8 +295,7 @@ const PlateProdigy = () => {
                     </div>
                   </div>
                   
-                  {/* Actions */}
-                  <div className="mt-6 flex justify-between">
+                  <div className="mt-6">
                     <button 
                       onClick={() => setRecipe(null)}
                       className="button-outline flex items-center gap-1.5"
@@ -316,15 +303,6 @@ const PlateProdigy = () => {
                       <Trash2 className="w-4 h-4" />
                       Clear Recipe
                     </button>
-                    
-                    <div className="flex gap-3">
-                      <button className="button-secondary">
-                        Save Recipe
-                      </button>
-                      <button className="button-primary">
-                        Share Recipe
-                      </button>
-                    </div>
                   </div>
                 </div>
               </div>

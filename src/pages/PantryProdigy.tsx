@@ -1,7 +1,6 @@
 import { useState } from 'react';
-import { Minus, Plus, ChefHat, Clock, PieChart, Utensils, Volume2, VolumeX, Trash2 } from 'lucide-react';
+import { Minus, Plus, ChefHat, Clock, PieChart, Utensils, Volume2, VolumeX, Trash2, Egg, Leaf, Drumstick } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { Egg, Leaf, Drumstick } from 'lucide-react';
 
 // Mock recipe data for demonstration
 const mockRecipe = {
@@ -60,7 +59,7 @@ const PantryProdigy = () => {
     setIngredients(ingredients.filter((_, i) => i !== index));
   };
   
-  // Toggle dietary requirement selection
+  // Updated toggle dietary requirement selection
   const toggleDietaryRequirement = (requirement: string) => {
     if (dietaryRequirements.includes(requirement)) {
       setDietaryRequirements(dietaryRequirements.filter(r => r !== requirement));
@@ -181,8 +180,8 @@ const PantryProdigy = () => {
             
             {/* Dietary Requirements */}
             <div className="mb-6">
-              <label className="block text-sm font-medium mb-2">Dietary Preferences</label>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <label className="block text-sm font-medium mb-2">Dietary Preference</label>
+              <div className="grid grid-cols-2 sm:grid-cols-2 gap-2">
                 {[
                   { name: 'Vegetarian', icon: Leaf },
                   { name: 'Vegan', icon: Leaf },
@@ -341,7 +340,7 @@ const PantryProdigy = () => {
                   </div>
                   
                   {/* Actions */}
-                  <div className="mt-6 flex justify-between">
+                  <div className="mt-6">
                     <button 
                       onClick={() => setRecipe(null)}
                       className="button-outline flex items-center gap-1.5"
@@ -349,15 +348,6 @@ const PantryProdigy = () => {
                       <Trash2 className="w-4 h-4" />
                       Clear Recipe
                     </button>
-                    
-                    <div className="flex gap-3">
-                      <button className="button-secondary">
-                        Save Recipe
-                      </button>
-                      <button className="button-primary">
-                        Share Recipe
-                      </button>
-                    </div>
                   </div>
                 </div>
               </div>
