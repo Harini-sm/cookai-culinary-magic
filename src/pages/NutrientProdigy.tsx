@@ -71,16 +71,7 @@ const NutrientProdigy = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   
   const { isAuthenticated } = useAuth();
-  const { 
-    saveRecipe, 
-    shareRecipe, 
-    isRecipeSaved, 
-    removeSavedRecipe,
-    fetchSavedRecipes,
-    isLoading: isRecipeActionLoading 
-  } = useRecipes();
-  
-  const [isSaved, setIsSaved] = useState(false);
+  const { isFetchingRecipes } = useRecipes();
   
   useEffect(() => {
     if (isAuthenticated) {
@@ -143,27 +134,6 @@ const NutrientProdigy = () => {
       setRecipe(recipeWithId);
       setLoading(false);
     }, 2000);
-  };
-
-  const handleSaveRecipe = async () => {
-    if (!recipe) return;
-    
-    if (isSaved) {
-      const result = await removeSavedRecipe(recipe.id);
-      if (result.success) {
-        setIsSaved(false);
-      }
-    } else {
-      const result = await saveRecipe(recipe);
-      if (result.success) {
-        setIsSaved(true);
-      }
-    }
-  };
-
-  const handleShareRecipe = async () => {
-    if (!recipe) return;
-    await shareRecipe(recipe);
   };
 
   return (
@@ -393,7 +363,7 @@ const NutrientProdigy = () => {
                     </div>
                   </div>
                   
-                  <div className="mt-6 flex justify-between">
+                  <div className="mt-6 flex justify-end">
                     <button 
                       onClick={() => setRecipe(null)}
                       className="button-outline flex items-center gap-1.5"
@@ -401,34 +371,6 @@ const NutrientProdigy = () => {
                       <Trash2 className="w-4 h-4" />
                       Clear Recipe
                     </button>
-                    
-                    <div className="flex gap-3">
-                      <button 
-                        onClick={handleSaveRecipe}
-                        disabled={isRecipeActionLoading}
-                        className={`button-secondary flex items-center gap-1.5 ${isRecipeActionLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
-                      >
-                        {isSaved ? (
-                          <>
-                            <BookmarkCheck className="w-4 h-4" />
-                            Saved
-                          </>
-                        ) : (
-                          <>
-                            <Bookmark className="w-4 h-4" />
-                            Save Recipe
-                          </>
-                        )}
-                      </button>
-                      <button 
-                        onClick={handleShareRecipe}
-                        disabled={isRecipeActionLoading}
-                        className={`button-primary flex items-center gap-1.5 ${isRecipeActionLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
-                      >
-                        <Share2 className="w-4 h-4" />
-                        Share Recipe
-                      </button>
-                    </div>
                   </div>
                 </div>
               </div>

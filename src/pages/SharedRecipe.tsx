@@ -1,23 +1,18 @@
-
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { ChefHat, Clock, PieChart, Utensils, Bookmark, Share2 } from 'lucide-react';
+import { ChefHat, Clock, PieChart, Utensils } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { getSharedRecipe } from '@/firebase';
-import { useRecipes } from '@/hooks/useRecipes';
 import { useAuth } from '@/contexts/AuthContext';
 import { Link } from 'react-router-dom';
-import SocialShareModal from '@/components/modals/SocialShareModal';
 
 const SharedRecipe = () => {
   const { shareId } = useParams<{ shareId: string }>();
   const [recipe, setRecipe] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [showShareModal, setShowShareModal] = useState(false);
   
   const { isAuthenticated } = useAuth();
-  const { saveRecipe, shareRecipe, isLoading, socialShareLinks } = useRecipes();
   
   useEffect(() => {
     async function fetchSharedRecipe() {
@@ -40,19 +35,6 @@ const SharedRecipe = () => {
     
     fetchSharedRecipe();
   }, [shareId]);
-  
-  const handleSaveRecipe = async () => {
-    if (!recipe) return;
-    await saveRecipe(recipe);
-  };
-  
-  const handleShareRecipe = async () => {
-    if (!recipe) return;
-    const result = await shareRecipe(recipe);
-    if (result.success) {
-      setShowShareModal(true);
-    }
-  };
   
   if (loading) {
     return (
@@ -161,43 +143,12 @@ const SharedRecipe = () => {
                 </div>
                 
                 {/* Actions */}
-                {isAuthenticated && (
-                  <div className="mt-6 flex justify-end">
-                    <div className="flex gap-3">
-                      <button 
-                        onClick={handleSaveRecipe}
-                        disabled={isLoading}
-                        className={`button-secondary flex items-center gap-1.5 ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
-                      >
-                        <Bookmark className="w-4 h-4" />
-                        Save Recipe
-                      </button>
-                      <button 
-                        onClick={handleShareRecipe}
-                        disabled={isLoading}
-                        className={`button-primary flex items-center gap-1.5 ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
-                      >
-                        <Share2 className="w-4 h-4" />
-                        Share Recipe
-                      </button>
-                    </div>
-                  </div>
-                )}
+                
               </div>
             </div>
           </motion.div>
         </div>
       </div>
-      
-      {showShareModal && socialShareLinks && (
-        <SocialShareModal
-          isOpen={showShareModal}
-          onClose={() => setShowShareModal(false)}
-          recipeTitle={recipe.title}
-          shareUrl={`${window.location.origin}/shared-recipe/${shareId}`}
-          socialLinks={socialShareLinks}
-        />
-      )}
     </div>
   );
 };
