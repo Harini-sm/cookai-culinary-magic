@@ -1,7 +1,7 @@
+
 import { useState, useEffect } from 'react';
-import { ChefHat, Clock, PieChart, Utensils, Volume2, VolumeX, Trash2, Heart, Share2, Bookmark, BookmarkCheck } from 'lucide-react';
+import { ChefHat, Clock, PieChart, Utensils, Volume2, VolumeX, Trash2, Heart } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useRecipes } from '@/hooks/useRecipes';
 import { useAuth } from '@/contexts/AuthContext';
 
 const mockRecipe = {
@@ -71,20 +71,12 @@ const NutrientProdigy = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   
   const { isAuthenticated } = useAuth();
-  const { isFetchingRecipes } = useRecipes();
   
-  useEffect(() => {
-    if (isAuthenticated) {
-      fetchSavedRecipes();
-    }
-  }, [isAuthenticated]);
+  // Remove the references to useRecipes hook and related functionality
   
-  useEffect(() => {
-    if (recipe) {
-      const recipeId = `${recipe.title.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}`;
-      setIsSaved(isRecipeSaved(recipeId));
-    }
-  }, [recipe]);
+  // Removed the useEffect that was fetching saved recipes
+  
+  // Removed the useEffect that was checking if a recipe is saved
   
   const toggleDietaryRequirement = (value: string) => {
     if (dietaryRequirements.includes(value)) {
