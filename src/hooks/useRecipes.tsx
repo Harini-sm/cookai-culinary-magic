@@ -14,6 +14,7 @@ export function useRecipes() {
   const [isLoading, setIsLoading] = useState(false);
   const [savedRecipes, setSavedRecipes] = useState<any[]>([]);
   const [isFetchingRecipes, setIsFetchingRecipes] = useState(false);
+  const [socialShareLinks, setSocialShareLinks] = useState<any>(null);
 
   // Save recipe
   const saveRecipe = async (recipe: any) => {
@@ -106,16 +107,35 @@ export function useRecipes() {
     return savedRecipes.some(recipe => recipe.recipeId === recipeId);
   };
 
-  // Share recipe
+  // Share recipe to social media
   const shareRecipe = async (recipe: any) => {
     setIsLoading(true);
     try {
       const result = await shareRecipeToFirebase(recipe);
       
       if (result.success) {
-        // Copy share URL to clipboard
-        await navigator.clipboard.writeText(result.shareUrl);
-        toast.success("Recipe link copied to clipboard!");
+        // Set social share links for the UI to use
+        setSocialShareLinks(result.socialShareLinks);
+        
+        // Create a modal or popup with sharing options
+        const shareData = {
+          title: `Check out this recipe: ${recipe.title}`,
+          text: `I found this amazing recipe using CookAI!`,
+          url: result.shareUrl
+        };
+        
+        // Try to use the Web Share API if available
+        if (navigator.share && navigator.canShare(shareData)) {
+          await navigator.share(shareData);
+          toast.success("Thanks for sharing!");
+        } else {
+          // Fallback to copying the URL
+          await navigator.clipboard.writeText(result.shareUrl);
+          toast.success("Recipe link copied to clipboard! Share it on your favorite platform.");
+          
+          // Open a new window with the share URL if in a supported browser
+          window.open(result.socialShareLinks.facebook, '_blank');
+        }
       } else {
         toast.error(result.message || "Failed to share recipe");
       }
@@ -137,6 +157,7 @@ export function useRecipes() {
     shareRecipe,
     isRecipeSaved,
     savedRecipes,
+    socialShareLinks,
     isLoading,
     isFetchingRecipes
   };

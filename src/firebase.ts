@@ -29,7 +29,7 @@ const saveRecipe = async (userId: string, recipe: any) => {
     const recipesRef = collection(db, "savedRecipes");
     const q = query(recipesRef, 
       where("userId", "==", userId), 
-      where("recipeId", "==", recipe.id || `${recipe.title}-${Date.now()}`)
+      where("recipeId", "==", recipe.id)
     );
     
     const querySnapshot = await getDocs(q);
@@ -42,7 +42,7 @@ const saveRecipe = async (userId: string, recipe: any) => {
     // Add recipe to savedRecipes collection
     const savedRecipeData = {
       userId,
-      recipeId: recipe.id || `${recipe.title}-${Date.now()}`,
+      recipeId: recipe.id,
       title: recipe.title,
       image: recipe.image,
       savedAt: new Date().toISOString(),
@@ -109,7 +109,7 @@ const removeSavedRecipe = async (userId: string, recipeId: string) => {
   }
 };
 
-// Share a recipe (creates a shareable link)
+// Share a recipe (creates a shareable link and social media sharing options)
 const shareRecipe = async (recipe: any) => {
   try {
     // Generate a unique ID for the shared recipe
@@ -122,10 +122,26 @@ const shareRecipe = async (recipe: any) => {
       viewCount: 0
     });
     
+    // Create share URL for the web app
+    const appShareUrl = `${window.location.origin}/shared-recipe/${shareId}`;
+    
+    // Create social media sharing URLs
+    const encodedTitle = encodeURIComponent(`Check out this recipe: ${recipe.title}`);
+    const encodedUrl = encodeURIComponent(appShareUrl);
+    
+    const socialShareLinks = {
+      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
+      twitter: `https://twitter.com/intent/tweet?text=${encodedTitle}&url=${encodedUrl}`,
+      whatsapp: `https://api.whatsapp.com/send?text=${encodedTitle}%20${encodedUrl}`,
+      linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`,
+      email: `mailto:?subject=${encodedTitle}&body=${encodedUrl}`
+    };
+    
     return { 
       success: true, 
       shareId,
-      shareUrl: `${window.location.origin}/shared-recipe/${shareId}`
+      shareUrl: appShareUrl,
+      socialShareLinks
     };
   } catch (error) {
     console.error("Error sharing recipe:", error);

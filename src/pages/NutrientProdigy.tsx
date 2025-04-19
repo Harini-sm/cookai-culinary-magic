@@ -5,6 +5,7 @@ import { useRecipes } from '@/hooks/useRecipes';
 import { useAuth } from '@/contexts/AuthContext';
 
 const mockRecipe = {
+  id: 'high-protein-chicken-quinoa-bowl',
   title: "High-Protein Chicken & Quinoa Power Bowl",
   image: "https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&q=80",
   time: "35 mins",
@@ -37,7 +38,8 @@ const mockRecipe = {
     "Assemble the bowl: place quinoa at the base, then arrange chicken, broccoli, avocado, and cherry tomatoes on top.",
     "Sprinkle with pumpkin seeds and drizzle with the prepared dressing.",
     "Garnish with fresh cilantro before serving."
-  ]
+  ],
+  category: "Dinner"
 };
 
 const dietaryOptions = [
@@ -88,7 +90,7 @@ const NutrientProdigy = () => {
   
   useEffect(() => {
     if (recipe) {
-      const recipeId = `${recipe.title}-${Date.now()}`;
+      const recipeId = `${recipe.title.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}`;
       setIsSaved(isRecipeSaved(recipeId));
     }
   }, [recipe]);
@@ -136,7 +138,7 @@ const NutrientProdigy = () => {
     setTimeout(() => {
       const recipeWithId = {
         ...mockRecipe,
-        id: `${mockRecipe.title}-${Date.now()}`
+        id: `${mockRecipe.title.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}`
       };
       setRecipe(recipeWithId);
       setLoading(false);

@@ -7,15 +7,17 @@ import { getSharedRecipe } from '@/firebase';
 import { useRecipes } from '@/hooks/useRecipes';
 import { useAuth } from '@/contexts/AuthContext';
 import { Link } from 'react-router-dom';
+import SocialShareModal from '@/components/modals/SocialShareModal';
 
 const SharedRecipe = () => {
   const { shareId } = useParams<{ shareId: string }>();
   const [recipe, setRecipe] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showShareModal, setShowShareModal] = useState(false);
   
   const { isAuthenticated } = useAuth();
-  const { saveRecipe, shareRecipe, isLoading } = useRecipes();
+  const { saveRecipe, shareRecipe, isLoading, socialShareLinks } = useRecipes();
   
   useEffect(() => {
     async function fetchSharedRecipe() {
@@ -46,7 +48,10 @@ const SharedRecipe = () => {
   
   const handleShareRecipe = async () => {
     if (!recipe) return;
-    await shareRecipe(recipe);
+    const result = await shareRecipe(recipe);
+    if (result.success) {
+      setShowShareModal(true);
+    }
   };
   
   if (loading) {
@@ -183,6 +188,16 @@ const SharedRecipe = () => {
           </motion.div>
         </div>
       </div>
+      
+      {showShareModal && socialShareLinks && (
+        <SocialShareModal
+          isOpen={showShareModal}
+          onClose={() => setShowShareModal(false)}
+          recipeTitle={recipe.title}
+          shareUrl={`${window.location.origin}/shared-recipe/${shareId}`}
+          socialLinks={socialShareLinks}
+        />
+      )}
     </div>
   );
 };
