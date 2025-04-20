@@ -36,6 +36,22 @@ serve(async (req) => {
 
     if (!response.ok) {
       const error = await response.json();
+      console.error('OpenAI API error:', error);
+      
+      // Check for quota exceeded error
+      if (error.error?.message?.includes('exceeded your current quota')) {
+        return new Response(
+          JSON.stringify({ 
+            error: "API quota exceeded", 
+            fallback: true 
+          }),
+          {
+            status: 402, // Payment Required
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          }
+        );
+      }
+      
       throw new Error(error.error?.message || 'Failed to generate speech');
     }
 
