@@ -292,7 +292,10 @@ const PantryProdigy = () => {
                   </div>
                   <div className="ml-auto">
                     <button
-                      onClick={() => setIsPlaying(!isPlaying)}
+                      onClick={() => {
+                        const instructionsText = recipe.instructions.join('. ');
+                        playText(instructionsText);
+                      }}
                       className="flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-full bg-primary/10 text-primary hover:bg-primary/20"
                     >
                       {isPlaying ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}

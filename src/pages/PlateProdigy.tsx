@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ChefHat, Clock, PieChart, Utensils, Volume2, VolumeX, Trash2, Search, Egg, Leaf, Drumstick } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useTextToSpeech } from '@/hooks/useTextToSpeech';
 
 const mockRecipe = {
   title: "Mediterranean Chickpea Buddha Bowl",
@@ -53,7 +54,8 @@ const PlateProdigy = () => {
   
   const [recipe, setRecipe] = useState<typeof mockRecipe | null>(null);
   const [loading, setLoading] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false);
+  
+  const { isPlaying, playText, stopPlaying } = useTextToSpeech();
   
   const toggleDietaryRequirement = (value: string) => {
     if (dietaryRequirements.includes(value)) {
@@ -251,7 +253,10 @@ const PlateProdigy = () => {
                   </div>
                   <div className="ml-auto">
                     <button
-                      onClick={() => setIsPlaying(!isPlaying)}
+                      onClick={() => {
+                        const instructionsText = recipe.instructions.join('. ');
+                        playText(instructionsText);
+                      }}
                       className="flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-full bg-cook-accent/10 text-cook-accent hover:bg-cook-accent/20"
                     >
                       {isPlaying ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}

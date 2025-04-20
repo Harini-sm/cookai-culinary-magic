@@ -49,16 +49,16 @@ export const useTextToSpeech = () => {
         return;
       }
 
-      const { data, error, status } = await supabase.functions.invoke('text-to-speech', {
+      const response = await supabase.functions.invoke('text-to-speech', {
         body: { text },
       });
 
       // Check for quota exceeded or other errors
-      if (error || !data.audioContent) {
-        console.error('Text-to-speech API error:', error || data.error);
+      if (response.error || !response.data?.audioContent) {
+        console.error('Text-to-speech API error:', response.error || response.data?.error);
         
-        // If quota exceeded, try browser speech synthesis
-        if (status === 402 || data.fallback) {
+        // If quota exceeded or fallback flag is set, try browser speech synthesis
+        if (response.data?.fallback) {
           toast.warning('Using browser speech synthesis due to API quota limits');
           if (!useBrowserSpeech(text)) {
             throw new Error('Both API and browser speech synthesis failed');
@@ -66,11 +66,11 @@ export const useTextToSpeech = () => {
           return;
         }
         
-        throw error || new Error(data.error || 'Failed to generate speech');
+        throw response.error || new Error(response.data?.error || 'Failed to generate speech');
       }
 
-      if (data.audioContent) {
-        const audio = new Audio(`data:audio/mp3;base64,${data.audioContent}`);
+      if (response.data.audioContent) {
+        const audio = new Audio(`data:audio/mp3;base64,${response.data.audioContent}`);
         setAudioElement(audio);
 
         audio.onended = () => {
