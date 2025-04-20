@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { ChefHat, Clock, PieChart, Utensils, Volume2, VolumeX, Trash2, Heart } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -43,13 +42,10 @@ const mockRecipe = {
 };
 
 const dietaryOptions = [
-  { value: "vegetarian", label: "Vegetarian" },
-  { value: "vegan", label: "Vegan" },
-  { value: "pescatarian", label: "Pescatarian" },
-  { value: "gluten-free", label: "Gluten-Free" },
-  { value: "dairy-free", label: "Dairy-Free" },
-  { value: "keto", label: "Keto" },
-  { value: "paleo", label: "Paleo" }
+  { value: "vegetarian", label: "Vegetarian"},
+  { value: "non-vegetarian", label: "Non Vegetarian" },
+  { value: "vegan", label: "Vegan"},
+  { value: "eggetarian", label: "Eggetarian"}
 ];
 
 const mealTypeOptions = [
@@ -72,19 +68,7 @@ const NutrientProdigy = () => {
   
   const { isAuthenticated } = useAuth();
   
-  // Remove the references to useRecipes hook and related functionality
-  
-  // Removed the useEffect that was fetching saved recipes
-  
-  // Removed the useEffect that was checking if a recipe is saved
-  
-  const toggleDietaryRequirement = (value: string) => {
-    if (dietaryRequirements.includes(value)) {
-      setDietaryRequirements(dietaryRequirements.filter(r => r !== value));
-    } else {
-      setDietaryRequirements([...dietaryRequirements, value]);
-    }
-  };
+  const [selectedDiet, setSelectedDiet] = useState<string>("");
   
   const handleMacroChange = (
     value: number, 
@@ -232,14 +216,14 @@ const NutrientProdigy = () => {
             </div>
             
             <div className="mb-8">
-              <label className="block text-sm font-medium mb-2">Dietary Requirements</label>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              <label className="block text-sm font-medium mb-2">Dietary Preference</label>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {dietaryOptions.map(option => (
                   <button
                     key={option.value}
-                    onClick={() => toggleDietaryRequirement(option.value)}
-                    className={`px-3 py-2 rounded border text-sm transition-colors ${
-                      dietaryRequirements.includes(option.value)
+                    onClick={() => setSelectedDiet(option.value)}
+                    className={`px-3 py-2 rounded border text-sm transition-colors flex items-center justify-center gap-2 ${
+                      selectedDiet === option.value
                         ? 'bg-cook-secondary text-white border-cook-secondary'
                         : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
                     }`}
