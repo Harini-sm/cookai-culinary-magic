@@ -1,6 +1,8 @@
+
 import { useState } from 'react';
 import { Minus, Plus, ChefHat, Clock, PieChart, Utensils, Volume2, VolumeX, Trash2, Egg, Leaf, Drumstick } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useTextToSpeech } from '@/hooks/useTextToSpeech';
 
 // Mock recipe data for demonstration
 const mockRecipe = {
@@ -44,7 +46,9 @@ const PantryProdigy = () => {
   
   const [recipe, setRecipe] = useState<typeof mockRecipe | null>(null);
   const [loading, setLoading] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false);
+  
+  // Import and use the text-to-speech hook
+  const { playText, isPlaying, stopPlaying } = useTextToSpeech();
   
   // Add an ingredient to the list
   const addIngredient = () => {
