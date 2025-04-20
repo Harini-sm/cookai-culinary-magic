@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { ChefHat, Clock, PieChart, Utensils, Volume2, VolumeX, Trash2, Heart } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTextToSpeech } from '@/hooks/useTextToSpeech';
 
 const mockRecipe = {
   id: 'high-protein-chicken-quinoa-bowl',
@@ -70,6 +71,8 @@ const NutrientProdigy = () => {
   
   const [selectedDiet, setSelectedDiet] = useState<string>("");
   
+  const { playText, isPlaying: textToSpeechIsPlaying } = useTextToSpeech();
+  
   const handleMacroChange = (
     value: number, 
     setter: React.Dispatch<React.SetStateAction<number>>,
@@ -110,6 +113,13 @@ const NutrientProdigy = () => {
       setRecipe(recipeWithId);
       setLoading(false);
     }, 2000);
+  };
+
+  const handlePlayInstructions = () => {
+    if (recipe) {
+      const instructions = recipe.instructions.join('. ');
+      playText(instructions);
+    }
   };
 
   return (
@@ -295,11 +305,11 @@ const NutrientProdigy = () => {
                   </div>
                   <div className="ml-auto">
                     <button
-                      onClick={() => setIsPlaying(!isPlaying)}
+                      onClick={handlePlayInstructions}
                       className="flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-full bg-cook-secondary/10 text-cook-secondary hover:bg-cook-secondary/20"
                     >
-                      {isPlaying ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-                      {isPlaying ? "Stop Voice" : "Play Voice Instructions"}
+                      {isPlaying || textToSpeechIsPlaying ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+                      {isPlaying || textToSpeechIsPlaying ? "Stop Voice" : "Play Voice Instructions"}
                     </button>
                   </div>
                 </div>
