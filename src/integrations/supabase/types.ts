@@ -9,6 +9,72 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      amounts: {
+        Row: {
+          ingredient_id: number | null
+          measurement_id: number | null
+          quantity: number
+          recipe_id: number | null
+        }
+        Insert: {
+          ingredient_id?: number | null
+          measurement_id?: number | null
+          quantity: number
+          recipe_id?: number | null
+        }
+        Update: {
+          ingredient_id?: number | null
+          measurement_id?: number | null
+          quantity?: number
+          recipe_id?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "amounts_ingredient_id_fkey"
+            columns: ["ingredient_id"]
+            isOneToOne: false
+            referencedRelation: "ingredients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "amounts_measurement_id_fkey"
+            columns: ["measurement_id"]
+            isOneToOne: false
+            referencedRelation: "measurements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ingredients: {
+        Row: {
+          id: number
+          name: string
+        }
+        Insert: {
+          id?: number
+          name: string
+        }
+        Update: {
+          id?: number
+          name?: string
+        }
+        Relationships: []
+      }
+      measurements: {
+        Row: {
+          id: number
+          unit: string
+        }
+        Insert: {
+          id?: number
+          unit: string
+        }
+        Update: {
+          id?: number
+          unit?: string
+        }
+        Relationships: []
+      }
       pantry_recipes: {
         Row: {
           cooking_skill: string | null
@@ -16,6 +82,7 @@ export type Database = {
           dietary_preference: string | null
           image_url: string | null
           ingredients_name: string | null
+          ingredients_with_quantities: string | null
           instructions: string | null
           meal_type: string | null
           name: string | null
@@ -27,6 +94,7 @@ export type Database = {
           dietary_preference?: string | null
           image_url?: string | null
           ingredients_name?: string | null
+          ingredients_with_quantities?: string | null
           instructions?: string | null
           meal_type?: string | null
           name?: string | null
@@ -38,9 +106,52 @@ export type Database = {
           dietary_preference?: string | null
           image_url?: string | null
           ingredients_name?: string | null
+          ingredients_with_quantities?: string | null
           instructions?: string | null
           meal_type?: string | null
           name?: string | null
+          total_time?: number | null
+        }
+        Relationships: []
+      }
+      recipes: {
+        Row: {
+          cooking_skill: string | null
+          cuisine: string | null
+          dietary_preference: string | null
+          id: number
+          image_url: string | null
+          ingredients_name: string[] | null
+          ingredients_with_quantities: Json | null
+          instructions: string | null
+          meal_type: string | null
+          name: string
+          total_time: number | null
+        }
+        Insert: {
+          cooking_skill?: string | null
+          cuisine?: string | null
+          dietary_preference?: string | null
+          id?: number
+          image_url?: string | null
+          ingredients_name?: string[] | null
+          ingredients_with_quantities?: Json | null
+          instructions?: string | null
+          meal_type?: string | null
+          name: string
+          total_time?: number | null
+        }
+        Update: {
+          cooking_skill?: string | null
+          cuisine?: string | null
+          dietary_preference?: string | null
+          id?: number
+          image_url?: string | null
+          ingredients_name?: string[] | null
+          ingredients_with_quantities?: Json | null
+          instructions?: string | null
+          meal_type?: string | null
+          name?: string
           total_time?: number | null
         }
         Relationships: []

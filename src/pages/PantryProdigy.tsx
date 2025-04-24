@@ -1,39 +1,17 @@
-
 import { useState } from 'react';
 import { Minus, Plus, ChefHat, Clock, PieChart, Utensils, Volume2, VolumeX, Trash2, Egg, Leaf, Drumstick } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTextToSpeech } from '@/hooks/useTextToSpeech';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
-// Mock recipe data for demonstration
-const mockRecipe = {
-  title: "Garlic Butter Shrimp Pasta",
-  image: "https://images.unsplash.com/photo-1563379926898-05f4575a45d8?auto=format&q=80",
-  time: "20 mins",
-  calories: "520 kcal",
-  difficulty: "Easy",
-  ingredients: [
-    "8 oz fettuccine pasta",
-    "1 lb large shrimp, peeled and deveined",
-    "4 tbsp butter",
-    "4 cloves garlic, minced",
-    "1/2 tsp red pepper flakes",
-    "1/4 cup white wine",
-    "2 tbsp lemon juice",
-    "1/4 cup chopped parsley",
-    "Salt and pepper to taste",
-    "Grated Parmesan cheese for serving"
-  ],
-  instructions: [
-    "Cook pasta according to package directions. Reserve 1/2 cup pasta water before draining.",
-    "In a large skillet, melt 2 tablespoons of butter over medium-high heat.",
-    "Add shrimp in a single layer and cook until pink, about 1-2 minutes per side. Transfer to a plate.",
-    "In the same skillet, add remaining butter and garlic. Cook until fragrant, about 30 seconds.",
-    "Add red pepper flakes and white wine. Simmer until reduced by half, about 2 minutes.",
-    "Return shrimp to skillet along with lemon juice, cooked pasta, and a splash of pasta water.",
-    "Toss until well coated and heated through. Add more pasta water if needed for sauce consistency.",
-    "Stir in chopped parsley and season with salt and pepper.",
-    "Serve immediately with grated Parmesan cheese."
-  ]
+type Recipe = {
+  name: string;
+  image_url: string | null;
+  total_time: number | null;
+  cooking_skill: string | null;
+  ingredients_name: string | null;
+  instructions: string | null;
 };
 
 const PantryProdigy = () => {
@@ -44,13 +22,11 @@ const PantryProdigy = () => {
   const [timeLimit, setTimeLimit] = useState("30");
   const [skillLevel, setSkillLevel] = useState("beginner");
   
-  const [recipe, setRecipe] = useState<typeof mockRecipe | null>(null);
+  const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [loading, setLoading] = useState(false);
   
-  // Import and use the text-to-speech hook
   const { playText, isPlaying, stopPlaying } = useTextToSpeech();
   
-  // Add an ingredient to the list
   const addIngredient = () => {
     if (newIngredient.trim() && !ingredients.includes(newIngredient.trim())) {
       setIngredients([...ingredients, newIngredient.trim()]);
@@ -58,12 +34,10 @@ const PantryProdigy = () => {
     }
   };
   
-  // Remove an ingredient from the list
   const removeIngredient = (index: number) => {
     setIngredients(ingredients.filter((_, i) => i !== index));
   };
   
-  // Updated toggle dietary requirement selection
   const toggleDietaryRequirement = (requirement: string) => {
     if (dietaryRequirements.includes(requirement)) {
       setDietaryRequirements(dietaryRequirements.filter(r => r !== requirement));
@@ -72,26 +46,43 @@ const PantryProdigy = () => {
     }
   };
   
-  // Generate recipe based on inputs
-  const generateRecipe = () => {
+  const generateRecipe = async () => {
     if (ingredients.length === 0) {
-      alert("Please add at least one ingredient");
+      toast.error("Please add at least one ingredient");
       return;
     }
     
     setLoading(true);
     
-    // Simulate API call with timeout
-    setTimeout(() => {
-      setRecipe(mockRecipe);
+    try {
+      const { data, error } = await supabase
+        .from('pantry_recipes')
+        .select('*')
+        .textSearch('ingredients_name', ingredients.join(' & '))
+        .eq('meal_type', mealType || null)
+        .eq('cooking_skill', skillLevel)
+        .single();
+
+      if (error) {
+        throw error;
+      }
+
+      if (data) {
+        setRecipe(data);
+      } else {
+        toast.error('No recipe found with these ingredients');
+      }
+    } catch (error) {
+      console.error('Error fetching recipe:', error);
+      toast.error('Failed to generate recipe. Please try again.');
+    } finally {
       setLoading(false);
-    }, 2000);
+    }
   };
 
   return (
     <div className="min-h-screen pt-24 pb-20">
       <div className="container mx-auto px-4">
-        {/* Header */}
         <div className="text-center mb-12">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -111,7 +102,6 @@ const PantryProdigy = () => {
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-          {/* Input Form */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -120,7 +110,6 @@ const PantryProdigy = () => {
           >
             <h2 className="text-2xl font-bold mb-6">What's in your pantry?</h2>
             
-            {/* Ingredients Input */}
             <div className="mb-8">
               <label className="block text-sm font-medium mb-2">Add Available Ingredients</label>
               <div className="flex gap-2">
@@ -140,7 +129,6 @@ const PantryProdigy = () => {
                 </button>
               </div>
               
-              {/* Ingredients List */}
               {ingredients.length > 0 && (
                 <div className="mt-4">
                   <div className="text-sm font-medium mb-2">Your Ingredients:</div>
@@ -164,7 +152,6 @@ const PantryProdigy = () => {
               )}
             </div>
             
-            {/* Meal Type */}
             <div className="mb-6">
               <label className="block text-sm font-medium mb-2">Select Meal Type</label>
               <select 
@@ -182,7 +169,6 @@ const PantryProdigy = () => {
               </select>
             </div>
             
-            {/* Dietary Requirements */}
             <div className="mb-6">
               <label className="block text-sm font-medium mb-2">Dietary Preference</label>
               <div className="grid grid-cols-2 sm:grid-cols-2 gap-2">
@@ -208,7 +194,6 @@ const PantryProdigy = () => {
               </div>
             </div>
             
-            {/* Time Limit & Skill Level */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
               <div>
                 <label className="block text-sm font-medium mb-2">Time Limit (minutes)</label>
@@ -236,7 +221,6 @@ const PantryProdigy = () => {
               </div>
             </div>
             
-            {/* Generate Button */}
             <button
               onClick={generateRecipe}
               disabled={loading || ingredients.length === 0}
@@ -258,7 +242,6 @@ const PantryProdigy = () => {
             </button>
           </motion.div>
           
-          {/* Recipe Display */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -266,39 +249,34 @@ const PantryProdigy = () => {
           >
             {recipe ? (
               <div className="glass-card rounded-xl overflow-hidden">
-                {/* Recipe Header with Image */}
                 <div className="relative">
                   <img 
-                    src={recipe.image} 
-                    alt={recipe.title} 
+                    src={recipe.image_url || '/placeholder.svg'} 
+                    alt={recipe.name} 
                     className="w-full h-64 object-cover"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end">
                     <div className="p-6">
-                      <h2 className="text-2xl md:text-3xl font-bold text-white">{recipe.title}</h2>
+                      <h2 className="text-2xl md:text-3xl font-bold text-white">{recipe.name}</h2>
                     </div>
                   </div>
                 </div>
                 
-                {/* Recipe Info Badges */}
                 <div className="flex flex-wrap gap-3 p-6 border-b border-gray-200 dark:border-gray-800">
                   <div className="flex items-center gap-1.5 text-sm">
                     <Clock className="w-4 h-4 text-primary" />
-                    <span>{recipe.time}</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 text-sm">
-                    <PieChart className="w-4 h-4 text-primary" />
-                    <span>{recipe.calories}</span>
+                    <span>{recipe.total_time || 'N/A'} mins</span>
                   </div>
                   <div className="flex items-center gap-1.5 text-sm">
                     <ChefHat className="w-4 h-4 text-primary" />
-                    <span>{recipe.difficulty}</span>
+                    <span>{recipe.cooking_skill || 'N/A'}</span>
                   </div>
                   <div className="ml-auto">
                     <button
                       onClick={() => {
-                        const instructionsText = recipe.instructions.join('. ');
-                        playText(instructionsText);
+                        if (recipe.instructions) {
+                          isPlaying ? stopPlaying() : playText(recipe.instructions);
+                        }
                       }}
                       className="flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-full bg-primary/10 text-primary hover:bg-primary/20"
                     >
@@ -308,45 +286,43 @@ const PantryProdigy = () => {
                   </div>
                 </div>
                 
-                {/* Recipe Content */}
                 <div className="p-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Ingredients */}
                     <div>
                       <h3 className="text-lg font-bold mb-3 flex items-center">
                         <Utensils className="w-5 h-5 mr-2 text-primary" />
                         Ingredients
                       </h3>
                       <ul className="space-y-2">
-                        {recipe.ingredients.map((ingredient, index) => (
+                        {recipe.ingredients_name?.split(',').map((ingredient, index) => (
                           <li key={index} className="flex items-start gap-2 text-gray-700 dark:text-gray-300">
                             <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2"></div>
-                            <span>{ingredient}</span>
+                            <span>{ingredient.trim()}</span>
                           </li>
                         ))}
                       </ul>
                     </div>
                     
-                    {/* Instructions */}
                     <div>
                       <h3 className="text-lg font-bold mb-3 flex items-center">
                         <ChefHat className="w-5 h-5 mr-2 text-primary" />
                         Instructions
                       </h3>
-                      <ol className="space-y-3">
-                        {recipe.instructions.map((instruction, index) => (
-                          <li key={index} className="flex items-start gap-3 text-gray-700 dark:text-gray-300">
-                            <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-sm font-medium">
-                              {index + 1}
-                            </div>
-                            <span>{instruction}</span>
-                          </li>
-                        ))}
-                      </ol>
+                      {recipe.instructions && (
+                        <ol className="space-y-3">
+                          {recipe.instructions.split('\n').map((instruction, index) => (
+                            <li key={index} className="flex items-start gap-3 text-gray-700 dark:text-gray-300">
+                              <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-sm font-medium">
+                                {index + 1}
+                              </div>
+                              <span>{instruction.trim()}</span>
+                            </li>
+                          ))}
+                        </ol>
+                      )}
                     </div>
                   </div>
                   
-                  {/* Actions */}
                   <div className="mt-6">
                     <button 
                       onClick={() => setRecipe(null)}
