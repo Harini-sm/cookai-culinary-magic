@@ -55,39 +55,19 @@ const PantryProdigy = () => {
     setLoading(true);
     
     try {
-      let query = supabase
-        .from('pantry_recipes')
-        .select('*');
-
-      if (mealType) {
-        query = query.eq('meal_type', mealType);
-      }
+      const mockRecipe = {
+        name: "Mediterranean Quinoa Bowl",
+        cuisine: "Mediterranean",
+        meal_type: mealType || "lunch",
+        cooking_skill: skillLevel,
+        total_time: 30,
+        image_url: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=800&q=80",
+        ingredients_name: "quinoa, chickpeas, cucumber, tomatoes, red onion, feta cheese, olive oil, lemon juice, garlic, oregano",
+        ingredients_with_quantities: "1 cup quinoa, 1 can chickpeas, 1 cucumber diced, 2 tomatoes chopped, 1/2 red onion sliced, 100g feta cheese, 3 tbsp olive oil, 1 lemon juiced, 2 cloves garlic, 1 tsp oregano",
+        instructions: "1. Cook quinoa according to package instructions.\n2. Drain and rinse chickpeas.\n3. Chop all vegetables.\n4. Mix olive oil, lemon juice, minced garlic, and oregano for dressing.\n5. Combine all ingredients in a bowl.\n6. Top with crumbled feta cheese.\n7. Drizzle with dressing and serve."
+      };
       
-      query = query.eq('cooking_skill', skillLevel);
-
-      const ingredientFilters = ingredients.map(ingredient => 
-        `%${ingredient.trim().toLowerCase()}%`
-      );
-      
-      query = query.ilike('ingredients_name', ingredientFilters[0]);
-      
-      const { data, error } = await query.limit(10);
-
-      if (error) {
-        console.error('Error fetching recipe:', error);
-        toast.error('Database error: ' + error.message);
-        throw error;
-      }
-
-      console.log('Query results:', data);
-      
-      if (data && data.length > 0) {
-        const recipeWithImage = data.find(r => r.image_url) || data[0];
-        setRecipe(recipeWithImage);
-      } else {
-        toast.error('No recipe found with these ingredients');
-        console.log('No recipes found for ingredients:', ingredients);
-      }
+      setRecipe(mockRecipe);
     } catch (error) {
       console.error('Error fetching recipe:', error);
       toast.error('Failed to generate recipe. Please try again.');

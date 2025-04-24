@@ -74,6 +74,39 @@ const PlateProdigy = () => {
     setLoading(true);
     
     setTimeout(() => {
+      const mockRecipe = {
+        title: "Greek Moussaka",
+        image: "https://images.unsplash.com/photo-1574484284002-952d92456975?auto=format&fit=crop&w=800&q=80",
+        time: "75 mins",
+        calories: "650 kcal",
+        difficulty: skillLevel,
+        ingredients: [
+          "2 large eggplants, sliced",
+          "500g ground lamb",
+          "1 onion, finely chopped",
+          "3 cloves garlic, minced",
+          "2 tbsp tomato paste",
+          "1 can crushed tomatoes",
+          "2 tbsp fresh parsley, chopped",
+          "1 tsp ground cinnamon",
+          "1/2 tsp ground allspice",
+          "2 cups bechamel sauce",
+          "1 cup grated Parmesan cheese",
+          "Salt and pepper to taste",
+          "Olive oil for cooking"
+        ],
+        instructions: [
+          "Slice eggplants and salt them to remove bitterness. Let sit for 30 minutes.",
+          "Meanwhile, prepare meat sauce by browning lamb with onions and garlic.",
+          "Add tomato paste, crushed tomatoes, and spices. Simmer for 20 minutes.",
+          "Rinse and pat dry eggplant slices. Brush with olive oil and grill until tender.",
+          "Prepare bechamel sauce if not already made.",
+          "Layer in baking dish: eggplant, meat sauce, bechamel, cheese.",
+          "Repeat layers ending with bechamel and cheese on top.",
+          "Bake at 350°F (175°C) for 45 minutes until golden brown.",
+          "Let rest for 15 minutes before serving."
+        ]
+      };
       setRecipe(mockRecipe);
       setLoading(false);
     }, 2000);
