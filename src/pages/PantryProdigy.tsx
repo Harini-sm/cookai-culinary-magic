@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Minus, Plus, ChefHat, Clock, PieChart, Utensils, Volume2, VolumeX, Trash2, Egg, Leaf, Drumstick } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -55,6 +56,7 @@ const PantryProdigy = () => {
     setLoading(true);
     
     try {
+      // Build a query to search for recipes with any of the ingredients
       const query = supabase
         .from('pantry_recipes')
         .select('*');
@@ -65,14 +67,21 @@ const PantryProdigy = () => {
       
       query.eq('cooking_skill', skillLevel);
       
-      let ingredientsCondition = ingredients.map(ingredient => 
-        `ingredients_name.ilike.%${ingredient}%`
-      );
+      // Create individual filter conditions for each ingredient
+      // This approach searches for each ingredient individually
+      for (let i = 0; i < ingredients.length; i++) {
+        const ingredient = ingredients[i];
+        if (i === 0) {
+          query.ilike('ingredients_name', `%${ingredient}%`);
+        } else {
+          // For subsequent ingredients, we use or to match any of them
+          query.or(`ingredients_name.ilike.%${ingredient}%`);
+        }
+      }
       
       const { data, error } = await query
-        .or(ingredientsCondition.join(','))
         .limit(1)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error('Error fetching recipe:', error);
