@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Minus, Plus, ChefHat, Clock, PieChart, Utensils, Volume2, VolumeX, Trash2, Egg, Leaf, Drumstick } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -56,42 +55,38 @@ const PantryProdigy = () => {
     setLoading(true);
     
     try {
-      // Build a query to search for recipes with any of the ingredients
-      const query = supabase
+      let query = supabase
         .from('pantry_recipes')
         .select('*');
 
       if (mealType) {
-        query.eq('meal_type', mealType);
+        query = query.eq('meal_type', mealType);
       }
       
-      query.eq('cooking_skill', skillLevel);
+      query = query.eq('cooking_skill', skillLevel);
+
+      const ingredientFilters = ingredients.map(ingredient => 
+        `%${ingredient.trim().toLowerCase()}%`
+      );
       
-      // Create individual filter conditions for each ingredient
-      // This approach searches for each ingredient individually
-      for (let i = 0; i < ingredients.length; i++) {
-        const ingredient = ingredients[i];
-        if (i === 0) {
-          query.ilike('ingredients_name', `%${ingredient}%`);
-        } else {
-          // For subsequent ingredients, we use or to match any of them
-          query.or(`ingredients_name.ilike.%${ingredient}%`);
-        }
-      }
+      query = query.ilike('ingredients_name', ingredientFilters[0]);
       
-      const { data, error } = await query
-        .limit(1)
-        .maybeSingle();
+      const { data, error } = await query.limit(10);
 
       if (error) {
         console.error('Error fetching recipe:', error);
+        toast.error('Database error: ' + error.message);
         throw error;
       }
 
-      if (data) {
-        setRecipe(data);
+      console.log('Query results:', data);
+      
+      if (data && data.length > 0) {
+        const recipeWithImage = data.find(r => r.image_url) || data[0];
+        setRecipe(recipeWithImage);
       } else {
         toast.error('No recipe found with these ingredients');
+        console.log('No recipes found for ingredients:', ingredients);
       }
     } catch (error) {
       console.error('Error fetching recipe:', error);
