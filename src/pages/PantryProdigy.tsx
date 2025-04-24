@@ -55,15 +55,27 @@ const PantryProdigy = () => {
     setLoading(true);
     
     try {
-      const { data, error } = await supabase
+      const query = supabase
         .from('pantry_recipes')
-        .select('*')
-        .textSearch('ingredients_name', ingredients.join(' & '))
-        .eq('meal_type', mealType || null)
-        .eq('cooking_skill', skillLevel)
+        .select('*');
+
+      if (mealType) {
+        query.eq('meal_type', mealType);
+      }
+      
+      query.eq('cooking_skill', skillLevel);
+      
+      let ingredientsCondition = ingredients.map(ingredient => 
+        `ingredients_name.ilike.%${ingredient}%`
+      );
+      
+      const { data, error } = await query
+        .or(ingredientsCondition.join(','))
+        .limit(1)
         .single();
 
       if (error) {
+        console.error('Error fetching recipe:', error);
         throw error;
       }
 
